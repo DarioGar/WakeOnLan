@@ -1,0 +1,4 @@
+PORT = 6001
+HOST = '0.0.0.0'
+URL_PREFIX = '/api/v1'
+DEBUG_MODE = True
