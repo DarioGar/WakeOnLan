@@ -5,6 +5,7 @@ import config
 from api.v1 import api
 from core import cache, limiter
 from api.users_ns import users_ns
+from api.mac_ns import mac_ns
 
 app = Flask(__name__)
 
@@ -30,7 +31,7 @@ def get_authors():
 __version__ = get_version()
 __author__ = get_authors()
 
-namespaces = [ users_ns ]
+namespaces = [ users_ns , mac_ns]
 
 @app.route('/')
 def register_redirection():
