@@ -1,6 +1,8 @@
 from api.v1 import api
 from flask_restx import Resource
 from core import limiter, cache
+from api.v1 import db
+from utils import handle400error, handle404error, handle500error
 
 mac_ns = api.namespace('macs',description='Manages MACS for the users')
 
@@ -14,20 +16,21 @@ class Assign(Resource):
 	@cache.cached(timeout=1, query_string=True)
 	def post(self,username,MAC):
 		"""
-		Assigns a MAC for the user
+		Assigns a MAC for the user and adds the MAC if it is not already registered
 		"""
 		try:
-			if username is not None and checkMAC(MAC):
-				for user in usuarios:
-					if username in user.values():
-						user['MAC'] = [MAC]
-						return user['MAC']
-			else:		
-				raise Exception('Invalid username or MAC address')
-			raise Exception('Unknown username')
+			if username is not None:
+				computers = list(db.computers.find({},{"_id" : 0 ,"MAC" : 1}))
+				users = list(db.users.find({},{"_id" : 0 ,"username" : 1}))
+				# We create a list of only the username field from the list of dictionaries returned from db.users.find()
+				if username in [d['username'] for d in users]:
+					if MAC not in [d['MAC'] for d in computers]:
+						db.computers.insert_one({"MAC" : MAC})
+					db.users.update_one({"username" : username},{ "$set" : {"assigned_macs" : MAC}})
+					return "Asignada"
 		except:
-			handle404error(users_ns,'Unknown username')
-		handle500error(users_ns)
+			handle404error(mac_ns,'Unknown username')
+		handle500error(mac_ns)
 
 	def get(self,username):
 		"""
@@ -50,9 +53,9 @@ class MAC(Resource):
 		try:
 			print("")
 		except:
-			handle404error(users_ns,'Unknown username')
+			handle404error(mac_ns,'Unknown username')
 
-		handle500error(users_ns)
+		handle500error(mac_ns)
 
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
@@ -67,5 +70,5 @@ class MAC(Resource):
 		try:
 			print("")
 		except:
-			handle404error(users_ns,'Unknown username')
-		handle500error(users_ns)
+			handle404error(mac_ns,'Unknown username')
+		handle500error(mac_ns)

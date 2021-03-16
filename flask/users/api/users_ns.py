@@ -72,7 +72,6 @@ class userCollection(Resource):
 			if username is not None and pw is not None:
 				users = list(db.users.find({},{"_id" : 0}))
 				# Check if the username is already in use
-				# We create a list of only the username field from the list of dictionaries returned from db.users.find()
 				for user in users:
 					if username == user["username"]:
 						if check_password(pw,user['password']):
