@@ -1,17 +1,20 @@
 import api.reusable
 import base64
 import bcrypt
+import json
 from markupsafe import escape
 from flask_restx import Resource
-from api.user_arguments import user_args_name_arguments, user_arguments,mac_arguments
+from api.user_arguments import user_args_name_arguments, user_arguments
 from api.user_models import user_model
 from api.v1 import api
 from core import limiter, cache
 from utils import handle400error, handle404error, handle500error
 from api.reusable import check_password,get_hashed_password,checkMAC
+from api.v1 import db
+from bson import ObjectId
+
 
 users_ns = api.namespace('users',description='Manages user information')
-usuarios = [{'username' : 'John','password' : 'X2B43uz+GaOhuaN1OkTdvA=='}]
 
 @users_ns.route('/signup')
 class userSignup(Resource):
@@ -31,17 +34,17 @@ class userSignup(Resource):
 			args = user_arguments.parse_args()
 			username = args['username']
 			pw = args['information']['password']
-			for user in usuarios:
-				# Check if the username is already in use
-				if username not in user.values():
-					# Hash and salt the password before storing it
-					hash_pw = base64.b64encode(get_hashed_password(pw))
-					new_user = {"username" : username, "password" : hash_pw.decode('ascii')}
-					# Insert into either Mongo or Postgre
-					usuarios.append(new_user)
-					return new_user
+			users = list(db.users.find({},{"_id" : 0 ,"username" : 1}))
+			# Check if the username is already in use
+			# We create a list of only the username field from the list of dictionaries returned from db.users.find()
+			if username not in [d['username'] for d in users]:
+				# Hash and salt the password before storing it
+				hash_pw = get_hashed_password(pw)
+				user_id = db.users.insert_one({"username" : username, "password" : hash_pw}).inserted_id
+				return str(user_id)
 		except:
 			handle500error(users_ns)
+		handle400error(users_ns,"The username is already in use")
 
 @users_ns.route('/login')
 class userCollection(Resource):
@@ -67,9 +70,12 @@ class userCollection(Resource):
 			username = args['username']
 			pw = args['password']
 			if username is not None and pw is not None:
-				for user in usuarios:
-					if username in user.values():
-						if check_password(pw,base64.b64decode(user['password'])):
+				users = list(db.users.find({},{"_id" : 0}))
+				# Check if the username is already in use
+				# We create a list of only the username field from the list of dictionaries returned from db.users.find()
+				for user in users:
+					if username == user["username"]:
+						if check_password(pw,user['password']):
 							# Logged in
 							return {'name' : username}
 			raise Exception('Invalid username and password combination')
@@ -97,13 +103,14 @@ class userDelete(Resource):
 			username = args['username']
 			pw = args['information']['password']
 			if username is not None and pw is not None:
-				for index, user in enumerate(usuarios):
-					if username in user.values():
-						if check_password(pw,base64.b64decode(user['password'])):
+				users = list(db.users.find({}))
+				for user in users:
+					if username == user['username']:
+						if check_password(pw,user['password']):
 							# Delete de user
 							print("Usuario eliminado")
-							usuarios.remove(user)
-							return "Eliminado"
+							db.users.delete_one({"username" : user['username']})
+							return str(user["_id"])
 							
 			raise Exception('Invalid username and password combination')
 					

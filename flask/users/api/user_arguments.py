@@ -1,5 +1,5 @@
 from flask_restx import reqparse
-# Argumentos que se esperan en la query en los distintos tipos HTTP
+
 user_args_name_arguments = reqparse.RequestParser()
 
 user_args_name_arguments.add_argument('username',
@@ -27,15 +27,3 @@ user_arguments.add_argument('information',
 							type=dict,
 							required=True,
 							help='User information, crypted password, etc')
-
-mac_arguments = reqparse.RequestParser()
-
-mac_arguments.add_argument('username',
-							location='headers',
-							type=str,
-							required=True)
-
-mac_arguments.add_argument('MAC',
-							location='headers',
-							type=str,
-							required=True)
