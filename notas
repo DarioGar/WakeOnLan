@@ -8,3 +8,8 @@ Podemos utilizar la utilidad nmap para averiguar que sistema operativo tienen lo
 Get-PhysicalDisk | Format-Table -AutoSize para averiguar si SSD o HDD
 wmic cpu get name,numberofcores nos devuelve el nombre del procesador y el número de cores
 wmic path win32_VideoController get name nos devuelve las gpus instaladas en el sistema
+
+<!--Linux-->
+lscpu | egrep 'Model name|Socket|Thread|NUMA|CPU\(s\)' devuelve el procesador
+cat /sys/block/sda/queue/rotational Posible solución para averiguar si ssd o no
+lspci | grep VGA para GPU
