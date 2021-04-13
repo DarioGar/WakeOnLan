@@ -1,3 +1,6 @@
 Añadir funcionalidad para arrancar programas de forma remota, permitiendo a los usuarios seleccionar que programas quieren arrancar, hacer que el servidor en la LAN escanee la red
 con arp -a y añada automáticamente la IP, MAC, nombre del equipo y si el equipo se encuentra online o no.
 Además, crear scripts que vivirán en los ordenadores que se quieran arrancar para analizar sus características y arrancarán los programas.
+
+Get-PhysicalDisk | Format-Table -AutoSize para averiguar si SSD o HDD
+wmic cpu get name,numberofcores nos devuelve el nombre del procesador y el número de cores
