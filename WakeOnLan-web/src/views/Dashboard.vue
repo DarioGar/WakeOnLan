@@ -2,7 +2,7 @@
   <div class="dashboard">
     <v-container class="my-5">
       <h1 class="subheading grey--text">Dashboard</h1>
-      <v-card flat class="pa-3 grey darken-1" v-for="computer in computers" :key="computer.mac">
+      <v-card flat class="pa-3" v-for="computer in computers" :key="computer.mac">
         <v-row :class="`computer ${computer.ssd}`">
           <v-col cols="3" md="3">
             <div class="caption grey--text"> MAC </div>
@@ -28,8 +28,6 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-
 
 export default {
   data() {

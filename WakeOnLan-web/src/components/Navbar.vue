@@ -2,9 +2,9 @@
     <nav>
         <v-app-bar class="grey darken-2" flat app>
             <v-app-bar-nav-icon class="grey-text" @click="drawer = !drawer"></v-app-bar-nav-icon>
-            <v-app-bar-title class="text-uppercase grey--text">
-                <span class="font-weight-light">Todo</span>
-                <span >Ninja</span>
+            <v-app-bar-title class="text grey--text">
+                <span class="font-weight-light">wake</span>
+                <span >OnLan</span>
             </v-app-bar-title>
 
             <v-spacer></v-spacer>
@@ -37,7 +37,7 @@ export default {
             drawer: false,
             links: [
                 {icon: 'mdi-view-dashboard',text: 'DashBoard', route: '/'},
-                {icon: 'mdi-laptop',text: 'My Computers', route: '/computers'},
+                {icon: 'mdi-laptop',text: 'Computers', route: '/computers'},
                 {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'}
             ]
         }
