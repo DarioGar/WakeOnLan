@@ -6,7 +6,7 @@
                 <span class="font-weight-light">wake</span>
                 <span >OnLan</span>
             </v-app-bar-title>
-
+            <v-spacer></v-spacer>
             <v-btn text color="grey">
                 <span>Sign out</span>
                 <v-icon>mdi-account-arrow-right-outline</v-icon>
