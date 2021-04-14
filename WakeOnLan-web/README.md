@@ -1,4 +1,4 @@
-# wake-on-lan
+# wake-on-lan-web
 
 ## Project setup
 ```

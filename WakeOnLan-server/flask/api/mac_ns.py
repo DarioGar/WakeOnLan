@@ -1,7 +1,6 @@
 from api.v1 import api
 from flask_restx import Resource
 from core import limiter, cache
-from api.v1 import db
 from utils import handle400error, handle404error, handle500error
 
 mac_ns = api.namespace('macs',description='Manages MACS for the users')

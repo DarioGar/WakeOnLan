@@ -10,7 +10,6 @@ from api.v1 import api
 from core import limiter, cache
 from utils import handle400error, handle404error, handle500error
 from api.reusable import check_password,get_hashed_password,checkMAC
-from api.v1 import db
 from bson import ObjectId
 
 
