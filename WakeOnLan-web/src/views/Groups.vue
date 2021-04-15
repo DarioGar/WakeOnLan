@@ -6,3 +6,21 @@
      </v-container>
   </div>
 </template>
+
+
+<script lang="ts">
+
+export default {
+  data() {
+    return {
+
+    }
+  },
+  computed:{
+    myGroups: function () {
+      // Obtener los grupos de los que se es miembro
+      return "Ninguno"
+    }
+  }
+}
+</script>

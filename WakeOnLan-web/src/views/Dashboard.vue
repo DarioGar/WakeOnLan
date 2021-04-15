@@ -30,14 +30,21 @@
 <script lang="ts">
 
 export default {
-  data() {
-    return {
+  data: () => ({
       computers: [
         {mac : "ff:ff:ff:ff:ff:01",cpu: "AMD Ryzen 7 3700X", ram: 32,gpu: "NVIDIA GeForce RTX 2070 SUPER",ssd: true,os:"Windows"},
         {mac : "ff:ff:ff:ff:ff:02",cpu: "AMD Ryzen 5 3600", ram: 16,gpu: "NVIDIA GeForce RTX 2060",ssd: false,os:"Linux"},
         {mac : "ff:ff:ff:ff:ff:03",cpu: "Intel Core i7-9700K", ram: 32,gpu: "NVIDIA GeForce GTX 1660 SUPER",ssd: true,os:"MAC"},
         {mac : "ff:ff:ff:ff:ff:04",cpu: "Intel Core i5-9600K", ram: 16,gpu: "AMD Radeon RX 580",ssd: false,os:"BSDOS"}
       ]
+  }),
+  methods:{
+    
+  },
+  computed:{
+    myComputers: function () {
+      // Obtener los ordenadores a los que se tiene acceso
+      return "Ninguno"
     }
   }
 }
