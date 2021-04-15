@@ -5,7 +5,7 @@
 py -3 -m venv venv
 ```
 
-### Activate envirnment
+### Activate environment
 ```
 venv\Scripts\activate
 ```

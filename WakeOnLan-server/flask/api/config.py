@@ -1,0 +1,5 @@
+POSTGRES_DB_NAME = 'wakeonlan'
+POSTGRES_USER = 'wakeonlan-admin'
+POSTGRES_PASSWORD = 'w+336HP6NY_4udS'
+POSTGRES_PORT = 5432
+HOST = '127.0.0.1'

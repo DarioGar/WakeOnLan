@@ -10,7 +10,7 @@ user_args_name_arguments.add_argument('username',
 
 user_args_name_arguments.add_argument('password',
 							location='args',
-							type=str,
+							type=dict,
 							required=True,
 							help='User\'s encrypted password')
 
@@ -22,8 +22,20 @@ user_arguments.add_argument('username',
 							required=True,
 							help='User\'s username')
 
-user_arguments.add_argument('information',
+user_arguments.add_argument('fullname',
 							location='json',
-							type=dict,
+							type=str,
 							required=True,
-							help='User information, crypted password, etc')
+							help='User full name')
+
+user_arguments.add_argument('password',
+							location='json',
+							type=str,
+							required=True,
+							help='User password')
+
+user_arguments.add_argument('role',
+							location='json',
+							type=str,
+							required=True,
+							help='User role')
