@@ -2,7 +2,7 @@
     <nav>
         <v-app-bar class="grey darken-2" flat app>
             <v-app-bar-nav-icon class="grey-text" @click="drawer = !drawer"></v-app-bar-nav-icon>
-            <v-app-bar-title class="text grey--text">
+            <v-app-bar-title class="text grey--text mx-5">
                 <span class="font-weight-light">wake</span>
                 <span >OnLan</span>
             </v-app-bar-title>
@@ -34,7 +34,7 @@ export default {
         return {
             drawer: false,
             links: [
-                {icon: 'mdi-view-dashboard',text: 'DashBoard', route: '/'},
+                {icon: 'mdi-view-dashboard',text: 'DashBoard', route: '/home'},
                 {icon: 'mdi-laptop',text: 'Computers', route: '/computers'},
                 {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'}
             ]

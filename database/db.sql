@@ -1,30 +1,46 @@
+DO $$ BEGIN
 CREATE TYPE "user_role" AS ENUM (
   'admin',
   'project_manager',
   'regular',
   'learning'
 );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
+DO $$ BEGIN
 CREATE TYPE "os_type" AS ENUM (
   'windows',
   'linux',
   'macos',
   'other'
 );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
+DO $$ BEGIN
 CREATE TYPE "bootup_status" AS ENUM (
   'on',
   'unknown'
 );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
+DO $$ BEGIN
 CREATE TYPE "use_type" AS ENUM (
   'iot',
   'datascience',
   'cybersecurity',
   'regular'
 );
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
   "id" SERIAL PRIMARY KEY,
   "full_name" varchar,
   "username" varchar,
@@ -33,14 +49,14 @@ CREATE TABLE "users" (
   "created_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "bootup_log" (
+CREATE TABLE IF NOT EXISTS "bootup_log" (
   "user_id" SERIAL,
   "computer_id" int,
   "status" bootup_status,
   "booted_at" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "schedule_bootup" (
+CREATE TABLE IF NOT EXISTS "schedule_bootup" (
   "id" SERIAL PRIMARY KEY,
   "user_id" int,
   "computer_id" int,
@@ -49,7 +65,7 @@ CREATE TABLE "schedule_bootup" (
   "created_at" varchar
 );
 
-CREATE TABLE "computers" (
+CREATE TABLE IF NOT EXISTS "computers" (
   "id" SERIAL PRIMARY KEY,
   "last_person" int,
   "name" varchar,
@@ -62,13 +78,13 @@ CREATE TABLE "computers" (
   "latest_bootup" timestamp DEFAULT (now())
 );
 
-CREATE TABLE "programs" (
+CREATE TABLE IF NOT EXISTS "programs" (
   "computer_id" int,
   "name" varchar,
   "path" varchar
 );
 
-CREATE TABLE "work_group" (
+CREATE TABLE IF NOT EXISTS "work_group" (
   "id" SERIAL PRIMARY KEY,
   "user_id" int,
   "name" varchar,
@@ -76,7 +92,7 @@ CREATE TABLE "work_group" (
   "department" varchar
 );
 
-CREATE TABLE "rooms" (
+CREATE TABLE IF NOT EXISTS "rooms" (
   "id" SERIAL PRIMARY KEY,
   "group_id" int,
   "location" varchar,

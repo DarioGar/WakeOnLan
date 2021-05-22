@@ -1,17 +1,15 @@
-from api.config import POSTGRES_PASSWORD
-from api.config import POSTGRES_USER
-from api.config import POSTGRES_DB_NAME
-from api.config import POSTGRES_PORT
-from api.config import HOST
-
 from flask_restx import Api
 import psycopg2 as psycopg2
 import psycopg2.extras
 from psycopg2.extensions import AsIs
 
+WOL_PASSWORD = "12345"
+WOL_USER = "postgres"
+WOL_DB_NAME = "wakeonlan"
+WOL_PORT = 5432
 
 api = Api(version='1.0',
         title = 'Users API',
         description='')
-con = psycopg2.connect(database= POSTGRES_DB_NAME,user=POSTGRES_USER,password=POSTGRES_PASSWORD,host=HOST,port=POSTGRES_PORT)
-print(con)
+
+con = psycopg2.connect(dbname=WOL_DB_NAME,user=WOL_USER,password=WOL_PASSWORD)

@@ -1,8 +1,10 @@
 from flask import Flask, request, Blueprint, redirect
+from flask_jwt_extended import JWTManager
 from api.users_ns import users_ns
 from flask_cors import CORS
 import config
 from api.v1 import api
+import api.auth as auth
 from core import cache, limiter
 from api.users_ns import users_ns
 from api.mac_ns import mac_ns
@@ -49,10 +51,12 @@ def initialize_app(flask_app):
 
     v1 = Blueprint('api', __name__, url_prefix=config.URL_PREFIX)
     api.init_app(v1)
-
+    flask_app.register_blueprint(auth.bp)
     limiter.exempt(v1)
     cache.init_app(flask_app)
-
+    app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
+    jwt = JWTManager(app)
     flask_app.register_blueprint(v1)
     flask_app.config.from_object(config)
 
