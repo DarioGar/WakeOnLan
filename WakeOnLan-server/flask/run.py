@@ -4,7 +4,6 @@ from api.users_ns import users_ns
 from flask_cors import CORS
 import config
 from api.v1 import api
-import api.auth as auth
 from core import cache, limiter
 from api.users_ns import users_ns
 from api.mac_ns import mac_ns
@@ -34,6 +33,11 @@ __version__ = get_version()
 __author__ = get_authors()
 
 namespaces = [ users_ns , mac_ns]
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  return response
 
 @app.route('/')
 def register_redirection():
@@ -47,11 +51,10 @@ def initialize_app(flask_app):
     This function initializes the Flask Application, adds the namespace and registers the blueprint.
     """
 
-    CORS(flask_app)
+    CORS(flask_app,supports_credentials=True,resources={r'/*': {'origins': '*'}})
 
     v1 = Blueprint('api', __name__, url_prefix=config.URL_PREFIX)
     api.init_app(v1)
-    flask_app.register_blueprint(auth.bp)
     limiter.exempt(v1)
     cache.init_app(flask_app)
     app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!

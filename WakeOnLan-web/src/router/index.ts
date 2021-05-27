@@ -5,9 +5,14 @@ Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
-    path: '/',
+    path: '/user',
+    name: 'Users',
+    component: () => import('@/views/Users.vue')
+  },
+  {
+    path: '/login',
     name: 'Login',
-    component: () => import('../views/Login.vue')
+    component: () => import('@/views/Login.vue')
   },
   {
     path: '/home',
@@ -17,12 +22,12 @@ const routes: Array<RouteConfig> = [
   {
     path: '/computers',
     name: 'Computers',
-    component: () => import('../views/Computers.vue')
+    component: () => import('@/views/Computers.vue')
   },
   {
     path: '/groups',
     name: 'Groups',
-    component: () => import('../views/Groups.vue')
+    component: () => import('@/views/Groups.vue')
   },
   
 ]

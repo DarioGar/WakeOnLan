@@ -1,51 +1,86 @@
-import { authService } from '@/api'
+import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators';
+import AuthService from '@/services/AuthService';
 
-const namespaced = true;
+const storedUser = localStorage.getItem('user');
 
-const state = {
-  user: {},
-  isLoggedIn: false
-};
+@Module({ namespaced: true })
+class User extends VuexModule {
+  public status = storedUser ? { loggedIn: true } : { loggedIn: false };
+  public user = storedUser ? JSON.parse(storedUser) : null;
 
-const getters = {
-  isLoggedIn: (state: { isLoggedIn: any; }) => state.isLoggedIn,
-  user: (state: { user: any; }) => state.user
-};
-
-const actions = {
-  async registerUser({ dispatch }: any, user: any) {
-    await authService.post('/register', user)
-    await dispatch('fetchUser')
-  },
-  async loginUser({ dispatch }: any, user: any) {
-    await authService.post('/login', user)
-    await dispatch('fetchUser')
-  },
-  async fetchUser({ commit }: any) {
-    await authService.get('/user')
-      .then(({ data }) => commit('setUser', data))
-  },
-  async logoutUser({ commit } : any) {
-    await authService.post('/logout');
-    commit('logoutUserState');
+  @Mutation
+  public loginSuccess(user: any): void {
+    this.status.loggedIn = true;
+    this.user = user;
   }
-};
 
-const mutations = {
-  setUser(state: { isLoggedIn: boolean; user: any; }, user: any) {
-    state.isLoggedIn = true;
-    state.user = user;
-  },
-  logoutUserState(state: { isLoggedIn: boolean; user: {}; }) {
-    state.isLoggedIn = false;
-    state.user = {};
+  @Mutation
+  public loginFailure(): void {
+    this.status.loggedIn = false;
+    this.user = null;
   }
-};
 
-export default {
-  namespaced,
-  state,
-  getters,
-  actions,
-  mutations
-};
+  @Mutation
+  public logout(): void {
+    this.status.loggedIn = false;
+    this.user = null;
+  }
+
+  @Mutation
+  public registerSuccess(): void {
+    this.status.loggedIn = false;
+  }
+
+  @Mutation
+  public registerFailure(): void {
+    this.status.loggedIn = false;
+  }
+
+  @Action({ rawError: true })
+  login(data: any): Promise<any> {
+    return AuthService.login(data.username, data.password).then(
+      user => {
+        this.context.commit('loginSuccess', user);
+        return Promise.resolve(user);
+      },
+      error => {
+        this.context.commit('loginFailure');
+        const message =
+          (error.response && error.response.data && error.response.data.message) ||
+          error.message ||
+          error.toString();
+        return Promise.reject(message);
+      }
+    );
+  }
+
+  @Action
+  signOut(): void {
+    AuthService.logout();
+    this.context.commit('logout');
+  }
+
+  @Action({ rawError: true })
+  register(data: any): Promise<any> {
+    return AuthService.register(data.username, data.email, data.password,data.role,data.fullname).then(
+      response => {
+        this.context.commit('registerSuccess');
+        return Promise.resolve(response.data);
+      },
+      error => {
+        this.context.commit('registerFailure');
+        const message =
+          (error.response && error.response.data && error.response.data.message) ||
+          error.message ||
+          error.toString();
+        return Promise.reject(message);
+      }
+    );
+  }
+
+  get isLoggedIn(): boolean {
+    return this.status.loggedIn;
+  }
+}
+
+export default User;

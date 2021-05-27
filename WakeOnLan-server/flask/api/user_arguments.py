@@ -3,7 +3,7 @@ from flask_restx import reqparse
 user_args_name_arguments = reqparse.RequestParser()
 
 user_args_name_arguments.add_argument('username',
-							location='args',
+							location='json',
 							type=str,
 							required=True,
 							help='User\'s username')
@@ -31,7 +31,7 @@ user_delete_arguments.add_argument('jwt',
 new_user_arguments = reqparse.RequestParser()
 
 new_user_arguments.add_argument('username',
-							location='args',
+							location='json',
 							type=str,
 							required=True,
 							help='User\'s username')
@@ -53,3 +53,9 @@ new_user_arguments.add_argument('role',
 							type=str,
 							required=True,
 							help='User role')
+
+new_user_arguments.add_argument('email',
+							location='json',
+							type=str,
+							required=True,
+							help='User email')

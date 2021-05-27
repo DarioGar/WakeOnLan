@@ -13,23 +13,25 @@
           <v-row class="my-5">
             <v-col cols=12 class="px-10">
               <v-text-field class="mt-2"
-              v-model="username"
-              @keydown.enter="checkData"
+              v-model="user.username"
+              :rules = "[rules.required, rules.counter]"
+              @keydown.enter="handleLogin"
               label="Username"
               outlined
               ></v-text-field>
             </v-col>
             <v-col cols=12 class="px-10">
               <v-text-field class="mt-2"
-              v-model="password"
-              @keydown.enter="checkData"
+              v-model="user.password"
+              @keydown.enter="handleLogin"
+              :rules = "[rules.required, rules.counter]"
               :type = "'password'"
               label="Password"
               outlined
               ></v-text-field>
             </v-col>
             <v-col cols=12 class="px-10 d-flex justify-end">
-              <v-btn @click="checkData">
+              <v-btn @click="handleLogin">
                 Login
               </v-btn>
             </v-col>
@@ -42,19 +44,45 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
+import { Component, Vue } from "vue-property-decorator";
+import VueRouter from 'vue-router'
+import { namespace } from "vuex-class";
+const Auth = namespace("Auth");
 
-  export default Vue.extend({
-    name: 'Login',
-    data: () => ({
-      username : "",
-      password : ""
-    }),
-    methods:{
-      checkData(){
-        if(!(this.username === "" && this.password === ""))
-        this.$router.push("home")
-      }
+@Component
+  export default class LoginComponent extends Vue{
+  private user: any = { username: "", password: "" };
+  private message = "";
+  private rules =  {
+    required: (value: any) => !!value || 'Required.',
+    counter: (value: any) => value.length <= 20 || 'Max 20 characters',
+  }
+          
+
+
+  @Auth.Getter
+  private isLoggedIn!: boolean;
+
+  @Auth.Action
+  private login!: (data: any) => Promise<any>;
+
+  created() {
+    if (this.isLoggedIn) {
+      this.$router.push("/home" );
     }
-  })
+  }
+
+  handleLogin() {
+    if (this.user.username && this.user.password) {
+      this.login(this.user).then(
+        (data) => {
+          this.$router.push("/home");
+        },
+        (error) => {
+          this.message = error;
+        }
+      );
+    }
+  }
+}
 </script>

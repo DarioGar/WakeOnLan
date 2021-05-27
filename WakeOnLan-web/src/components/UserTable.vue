@@ -1,0 +1,294 @@
+<template>
+  <v-data-table
+    :headers="headers"
+    :items="users"
+    sort-by="username"
+    class="elevation-1"
+  >
+    <template v-slot:top>
+      <v-toolbar
+        flat
+      >
+        <v-toolbar-title>Users</v-toolbar-title>
+        
+        <v-divider
+          class="mx-4"
+          inset
+          vertical
+        ></v-divider>
+        <v-spacer></v-spacer>
+        <v-dialog
+          v-model="dialog"
+          max-width="500px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              color="primary"
+              dark
+              class="mb-2"
+              v-bind="attrs"
+              v-on="on"
+            >
+              New User
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{formTitle()}}</span>
+            </v-card-title>
+
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                  >
+                    <v-text-field
+                      label="Username*"
+                      required
+                      v-model="user.username"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col 
+                  cols="12"
+                  sm="6"
+                  md="6">
+                    <v-text-field
+                      label="Password*"
+                      type="password"
+                      required
+                      v-model="user.password"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
+                    <v-text-field
+                      label="Email*"
+                      required
+                      v-model="user.email"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="4"
+                  >
+                    <v-select
+                      :items="['regular', 'learning', 'project_Manager', 'admin']"
+                      label="Role*"
+                      required
+                      v-model="user.role"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      label="Full name"
+                      v-model="user.fullname"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="close"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="save"
+              >
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-toolbar>
+    </template>
+    <template v-slot:[`item.actions`]="{ item }">
+      <v-icon
+        small
+        class="mr-2"
+        @click="editItem(item)"
+      >
+        mdi-pencil
+      </v-icon>
+      <v-icon
+        small
+        @click="deleteItem(item)"
+      >
+        mdi-delete
+      </v-icon>
+    </template>
+    <template v-slot:no-data>
+      <v-btn
+        color="primary"
+        @click="getUsers"
+      >
+        Reset
+      </v-btn>
+    </template>
+    
+  </v-data-table>
+  
+</template>
+
+<script lang = "ts">
+
+import { Component, Vue, Watch } from "vue-property-decorator";
+import { namespace } from "vuex-class";
+import UserService from "../services/UserService";
+const Auth = namespace("Auth");
+
+@Component
+  export default class Users extends Vue{
+    private dialog =  false
+    private dialogDelete = false
+    private submitted = false;
+    private successful = false;
+    private message = "asdasd";
+    private headers = [
+        {
+        text: 'Username',
+        align: 'start',
+        value: 'username',
+        },
+        { text: 'Email', value: 'email' },
+        { text: 'Role', value: 'role' },
+        { text: 'Actions', value: 'actions', sortable: false }
+    ]
+    private users = [{}]
+    private editedIndex = -1
+    private user = {username:"",email:"",role:"",fullname:"",password:""}
+    formTitle () : any {
+        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+    }
+
+    @Watch('dialogDelete')
+    dialogDeleted (val: any) {
+    val || this.closeDelete() 
+    }
+    @Auth.Getter
+    private isLoggedIn!: boolean;
+
+    @Auth.Action
+    private register!: (data: any) => Promise<any>;
+
+    mounted() {
+      this.users.pop()
+      this.getUsers()
+    }
+
+    getUsers () {
+      this.users.length = 0
+      UserService.getUsers().then(
+      (response) => {
+        response.data.forEach((element: any) => {
+          var user = {
+            username : element[0],
+            email : element[1],
+            role : element[2],
+            password : element[3],
+            fullname : element[4]
+          }
+          this.users.push(user)
+        });
+      },
+      (error) => {
+        this.message =
+          (error.response && error.response.data && error.response.data.message) ||
+          error.message ||
+          error.toString();
+      }
+    );
+    }
+
+    editItem (item : any) {
+    this.editedIndex = this.users.indexOf(item)
+    this.user = Object.assign({}, item)
+    this.dialog = true
+    }
+
+    deleteItem (item : any) {
+    this.editedIndex = this.users.indexOf(item)
+    this.user = Object.assign({}, item)
+    this.dialogDelete = true
+    }
+
+    deleteItemConfirm () {
+    //Eliminar de la base de datos
+    this.users.splice(this.editedIndex, 1)
+    this.deleteUser(this.user.username)
+    this.closeDelete()
+    }
+
+    deleteUser(username : any){
+      UserService.delUser(username).then(
+      (response) => {
+        this.message = response.data
+      },
+      (error) => {
+        this.message =
+          (error.response && error.response.data && error.response.data.message) ||
+          error.message ||
+          error.toString();
+      }
+    );
+    }
+
+    close () {
+    this.dialog = false
+    this.$nextTick(() => {
+        this.editedIndex = -1
+        this.user = {username:"",email:"",role:"",fullname:"",password:""}
+    })
+    }
+
+    closeDelete () {
+    this.dialogDelete = false
+    this.$nextTick(() => {
+        this.editedIndex = -1
+        this.user = {username:"",email:"",role:"",fullname:"",password:""}
+    })
+    }
+    
+    async save () {
+    //Cambiar para que al guardar se inserte en la BBDD
+    await this.deleteUser(this.user.username);
+    this.register(this.user).then(
+          (data) => {
+            this.message = data.message;
+            this.successful = true;
+            this.getUsers()
+          },
+          (error) => {
+            this.message = error;
+            this.successful = false;
+          }
+        );
+    this.close()
+    
+    }
+  }
+</script>
