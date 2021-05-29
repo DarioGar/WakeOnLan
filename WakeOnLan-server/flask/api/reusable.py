@@ -1,6 +1,26 @@
+from functools import wraps
 import re
+from flask_jwt_extended import verify_jwt_in_request
+from flask_jwt_extended import get_jwt
+from flask import jsonify
+
 import bcrypt
 
+def admin_required():
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            verify_jwt_in_request()
+            claims = get_jwt()
+            if claims["is_administrator"]:
+                return fn(*args, **kwargs)
+            else:
+                return jsonify(msg="Admins only!"), 403
+
+        return decorator
+
+    return wrapper
+    
 def checkMAC(MAC):
     """
     Checks if the format of the given MAC is correct

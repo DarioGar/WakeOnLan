@@ -3,7 +3,7 @@ from api.reusable import check_password
 
 class User:
 
-    def __init__(self,name,email,password,fname):
+    def __init__(self,name,password,fname,email):
         self.username = name
         self.pw = password
         self.email = email
@@ -73,12 +73,11 @@ class User:
             self.roles.append('regular')
         if(role == 'learning'):
             self.roles.append('learning')
-            self.roles.append('regular')
         if(role == 'admin'):
             self.roles.append('admin')
-            self.roles.append('regular')
             self.roles.append('project_manager')
             self.roles.append('learning')
+            self.roles.append('regular')
 
     
 

@@ -49,7 +49,7 @@ class userSignup(Resource):
 			return handle400error(users_ns,"The username is already in use")
 		# Build the user
 		try:
-			user = User(username,email,get_hashed_password(pw),fullname)
+			user = User(username,get_hashed_password(pw),fullname,email)
 			user.roles.append(role.lower())
 			id = user.register()
 			user.setRoles(role.lower())
@@ -88,7 +88,7 @@ class userCollection(Resource):
 		except:
 			return handle400error(users_ns, 'Invalid username and password combination')
 		try:
-			user = User(data[2],data[3],data[1])
+			user = User(data[2],data[3],data[1],data[6])
 			user.setRoles(data[4])
 			if data:
 				access_token=create_access_token(identity=user.__dict__)
@@ -122,14 +122,14 @@ class user(Resource):
 				response = jsonify()
 			return make_response(response, 200)
 		except:
-			handle404error(users_ns,'Invalid username')
+			handle400error(users_ns,'Invalid username')
 		
 		return handle500error(users_ns)
 
 @users_ns.route('/<username>',methods=['DELETE','OPTIONS'])
 
 class user(Resource):
-	
+	cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
 	@api.response(404, 'Data not found')
@@ -142,12 +142,12 @@ class user(Resource):
 		Deletes a user
 		"""
 		try:
-			if username is not None:
+			if username is not None and User.exists(username):
 				User.delete(username)
 				return make_response(jsonify("Succesfully deleted" + username),200)
 			else:	
 				raise Exception('Something went wrong with deletion')			
 		except:
-			handle404error(users_ns,'Invalid username')
+			handle400error(users_ns,'Invalid username')
 		
 		return handle500error(users_ns)

@@ -78,7 +78,7 @@
                     sm="4"
                   >
                     <v-select
-                      :items="['regular', 'learning', 'project_Manager', 'admin']"
+                      :items="['regular', 'learning', 'project_manager', 'admin']"
                       label="Role*"
                       required
                       v-model="user.role"
@@ -275,7 +275,7 @@ const Auth = namespace("Auth");
     
     async save () {
     //Cambiar para que al guardar se inserte en la BBDD
-    await this.deleteUser(this.user.username);
+    this.deleteUser(this.user.username); 
     this.register(this.user).then(
           (data) => {
             this.message = data.message;

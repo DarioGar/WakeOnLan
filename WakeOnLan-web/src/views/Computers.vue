@@ -1,59 +1,122 @@
 <template>
-      <v-container>
-        <v-row class="my-5">
-          <v-col class="my-2"
-            v-for="(computer,i) in computers"
-            :key="i"
-            cols="4" sm="4" md="3" xl=3
-          >
-          <!--Añadir Si alguien ya lo ha arrancado aparezca disabled-->
-            <v-card hover exact>
-              <v-row>
-                <v-col cols="1" sm="2" md="2" xl="3">
-                  <v-icon :class="size">mdi-desktop-classic</v-icon>
-                </v-col>
-                <v-col>
-                  <v-card-title>{{computer.name}}</v-card-title>
-                  <v-card-text>{{computer.ip}}</v-card-text>
-                  <v-card-action></v-card-action>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row> 
-      </v-container>
+  <v-container>
+    <v-row class="my-5">
+      <v-col class="my-2"
+        v-for="(computer,i) in computers"
+        :key="i"
+        cols="4" sm="4" md="3" xl=3
+      >
+      <!--Añadir Si alguien ya lo ha arrancado aparezca disabled-->
+        <v-card >
+          <v-row>
+            <v-col cols="1" sm="2" md="2" xl="3">
+              <v-icon :class="size()">mdi-desktop-classic</v-icon>
+            </v-col>
+            <v-col>
+              <v-card-title class="text-capitalize">{{computer.os}}</v-card-title>
+              <v-card-text>{{computer.cpu}}</v-card-text>
+              <v-card-action>
+                <v-btn @click="computer.reveal = !computer.reveal">
+                  More
+                </v-btn>
+              </v-card-action>
+            </v-col>
+          </v-row>
+              <v-expand-transition>
+                <v-card
+                  v-if="computer.reveal"
+                  class="transition-fast-in-fast-out v-card--reveal mt-3"
+                  style="height: 100%;"
+                >
+                <ProgramPicker v-bind ='{selectedPrograms : programsToLaunch}' v-on:emit-programs="savePrograms"/>
+                <PowerOnComponent/>
+                </v-card>
+              </v-expand-transition>
+        </v-card>
+      </v-col>
+    </v-row> 
+  </v-container>
 </template>
 
-<script lang="ts">
-  import Vue from 'vue'
+<script lang = "ts">
+import { Component, Vue, Watch } from "vue-property-decorator";
+import { namespace } from "vuex-class";
+import vuetify from "vuetify"
+import ComputerService from "../services/ComputerService";
+const Auth = namespace("Auth");
+import ProgramPicker from '../components/ProgramPicker.vue'
+import PowerOnComponent from '../components/PowerOnComponent.vue'
 
-  export default Vue.extend({
-  data: () => ({
-      computers:[
-        {name:"Mi PC 1",ip:"192.168.1.1",mac : "ff:ff:ff:ff:ff:01",cpu: "AMD Ryzen 7 3700X", ram: 32,gpu: "NVIDIA GeForce RTX 2070 SUPER",ssd: true,os:"Windows",expectedUse:""},
-        {name:"Mi PC 2",ip:"192.168.1.2",mac : "ff:ff:ff:ff:ff:02",cpu: "AMD Ryzen 5 3600", ram: 16,gpu: "NVIDIA GeForce RTX 2060",ssd: false,os:"Linux",expectedUse:""},
-        {name:"Mi PC 3",ip:"192.168.1.3",mac : "ff:ff:ff:ff:ff:03",cpu: "Intel Core i7-9700K", ram: 32,gpu: "NVIDIA GeForce GTX 1660 SUPER",ssd: true,os:"MAC",expectedUse:""},
-        {name:"Mi PC 4",ip:"192.168.1.4",mac : "ff:ff:ff:ff:ff:04",cpu: "Intel Core i5-9600K", ram: 16,gpu: "AMD Radeon RX 580",ssd: false,os:"BSDOS",expectedUse:""},
-        {name:"Mi PC 5",ip:"192.168.1.5",mac : "ff:ff:ff:ff:ff:01",cpu: "AMD Ryzen 7 3700X", ram: 32,gpu: "NVIDIA GeForce RTX 2070 SUPER",ssd: true,os:"Windows",expectedUse:""},
-        {name:"Mi PC 6",ip:"192.168.1.6",mac : "ff:ff:ff:ff:ff:02",cpu: "AMD Ryzen 5 3600", ram: 16,gpu: "NVIDIA GeForce RTX 2060",ssd: false,os:"Linux",expectedUse:""},
-        {name:"Mi PC 7",ip:"192.168.1.7",mac : "ff:ff:ff:ff:ff:03",cpu: "Intel Core i7-9700K", ram: 32,gpu: "NVIDIA GeForce GTX 1660 SUPER",ssd: true,os:"MAC",expectedUse:""},
-        {name:"Mi PC 8",ip:"192.168.1.8",mac : "ff:ff:ff:ff:ff:04",cpu: "Intel Core i5-9600K", ram: 16,gpu: "AMD Radeon RX 580",ssd: false,os:"BSDOS",expectedUse:""}
-      ]
-  }),
-    methods: {
-    },
-    computed:{
-      size : function () {
-        console.log(this.$vuetify.breakpoint.name)
-        switch (this.$vuetify.breakpoint.name) {
-          case 'xs': return "display-1"
-          case 'sm': return "display-2"
-          case 'md': return "display-2"
-          case 'lg': return "display-3"
-          case 'xl': return "display-3"
-        }
-        return ""
-      },
+@Component({components:{
+      ProgramPicker,
+      PowerOnComponent
     }
 })
+  export default class Computers extends Vue{
+    private selected = {id:-1,ip: "",mac:"",cpu:"",ram:0,ssd: false,os: "",gpu: "",reveal:false}
+    private computers = [{}]
+    private message = ""
+    private reveal = false
+    //Will store the selected programs in the v-select
+    private programsToLaunch = []
+
+    @Auth.Getter
+    private isLoggedIn!: boolean;
+
+    @Auth.State("user")
+    private currentUser!: any;
+
+    size() {
+      console.log(this.$vuetify.breakpoint.name)
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return "display-1"
+        case 'sm': return "display-2"
+        case 'md': return "display-2"
+        case 'lg': return "display-3"
+        case 'xl': return "display-3"
+      }
+      return ""
+    }
+    
+    mounted() {
+      if (!this.currentUser) {
+        this.$router.push("/login");
+      }
+      this.computers.pop()
+      this.getComputers()
+    }
+
+    getComputers(){
+      this.computers.length = 0
+      if (this.currentUser && this.currentUser.roles) {
+            ComputerService.getAvailableComputersForUser(this.currentUser.username).then(
+                  (response) => {
+                    response.data.forEach((element: any) => {
+                      var computer = {
+                        ip : element[0],
+                        mac : element[1],
+                        cpu : element[2],
+                        ram : element[3],
+                        ssd : element[4],
+                        os : element[5],
+                        gpu : element[6],
+                        id : element[7],
+                        reveal : false
+                      }
+                      this.computers.push(computer)
+                    });
+                  },
+                  (error) => {
+                    this.message =
+                      (error.response && error.response.data && error.response.data.message) ||
+                      error.message ||
+                      error.toString();
+                  }
+                );
+      }
+    }
+    savePrograms(programs : any){
+      this.programsToLaunch = programs;
+    }
+}
 </script>

@@ -49,6 +49,7 @@ export default class NavBar extends Vue {
     loggedInlinks = [
         {icon: 'mdi-login',text: 'Login', route: '/login'},
         {icon: 'mdi-view-dashboard',text: 'DashBoard', route: '/home'},
+        {icon: 'mdi-laptop',text: 'Computers', route: '/computers'},
         {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'}
     ];
 
