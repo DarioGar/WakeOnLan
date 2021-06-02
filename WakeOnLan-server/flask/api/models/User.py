@@ -59,11 +59,10 @@ class User:
 
     def register(self):
         cur = con.cursor()
-        # Hash and salt the password before storing it
         query = "INSERT INTO public.users (full_name,username,password,role,email) VALUES (%s,%s,%s,%s,%s) RETURNING id"
         cur.execute(query,(self.fullname,self.username,self.pw,self.roles.pop(),self.email))
         con.commit()
-        return cur.fetchone()[0]
+        return cur.fetchone()[0] 
 
     def setRoles(self,role):
         if(role == 'regular'):

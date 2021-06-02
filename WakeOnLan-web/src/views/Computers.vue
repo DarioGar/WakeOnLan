@@ -1,5 +1,9 @@
 <template>
   <v-container>
+    <span>
+      Select programs to launch, time and days to power up the computer and hit the power button or, alternatively just hit the power button to turn the computer on now
+    </span>
+    <span class="red--text">{{message}}</span>
     <v-row class="my-5">
       <v-col class="my-2"
         v-for="(computer,i) in computers"
@@ -14,22 +18,28 @@
             </v-col>
             <v-col>
               <v-card-title class="text-capitalize">{{computer.os}}</v-card-title>
-              <v-card-text>{{computer.cpu}}</v-card-text>
-              <v-card-action>
-                <v-btn @click="computer.reveal = !computer.reveal">
-                  More
-                </v-btn>
-              </v-card-action>
+              <v-card-text>{{computer.ip}}</v-card-text>
             </v-col>
           </v-row>
+          <v-card-actions class="mx-5">
+            <v-btn @click="computerClicked(computer.id);computer.reveal = !computer.reveal ">
+              More
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn @click="powerComputer(computer)">
+              <v-icon color="green">
+                mdi-power
+              </v-icon>
+            </v-btn>
+          </v-card-actions>
               <v-expand-transition>
                 <v-card
                   v-if="computer.reveal"
                   class="transition-fast-in-fast-out v-card--reveal mt-3"
                   style="height: 100%;"
                 >
-                <ProgramPicker v-bind ='{selectedPrograms : programsToLaunch}' v-on:emit-programs="savePrograms"/>
-                <PowerOnComponent/>
+                <ProgramPicker v-bind ='{computer : computer}' v-on:emit-programs="savePrograms"/>
+                <PowerOnComponent v-bind ='{computer : computer}' v-on:emit-time="saveTime"/>
                 </v-card>
               </v-expand-transition>
         </v-card>
@@ -42,10 +52,11 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { namespace } from "vuex-class";
 import vuetify from "vuetify"
-import ComputerService from "../services/ComputerService";
+import ComputerService,{Computer} from "../services/ComputerService";
 const Auth = namespace("Auth");
 import ProgramPicker from '../components/ProgramPicker.vue'
 import PowerOnComponent from '../components/PowerOnComponent.vue'
+
 
 @Component({components:{
       ProgramPicker,
@@ -53,12 +64,13 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
     }
 })
   export default class Computers extends Vue{
-    private selected = {id:-1,ip: "",mac:"",cpu:"",ram:0,ssd: false,os: "",gpu: "",reveal:false}
-    private computers = [{}]
-    private message = ""
-    private reveal = false
+    private selectedId = -1
+    private computers : Computer[] = []
+    private message = {}
     //Will store the selected programs in the v-select
     private programsToLaunch = []
+    
+    private timeMap = new Map()
 
     @Auth.Getter
     private isLoggedIn!: boolean;
@@ -67,7 +79,6 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
     private currentUser!: any;
 
     size() {
-      console.log(this.$vuetify.breakpoint.name)
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return "display-1"
         case 'sm': return "display-2"
@@ -92,7 +103,7 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
             ComputerService.getAvailableComputersForUser(this.currentUser.username).then(
                   (response) => {
                     response.data.forEach((element: any) => {
-                      var computer = {
+                      var computer : Computer = {
                         ip : element[0],
                         mac : element[1],
                         cpu : element[2],
@@ -101,7 +112,8 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
                         os : element[5],
                         gpu : element[6],
                         id : element[7],
-                        reveal : false
+                        reveal : false,
+                        selectedPrograms : []
                       }
                       this.computers.push(computer)
                     });
@@ -115,8 +127,55 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
                 );
       }
     }
+
+    computerClicked(pc : number){
+      this.selectedId = pc;
+    }
     savePrograms(programs : any){
-      this.programsToLaunch = programs;
+      return
+    }
+    saveTime(values : any){
+      this.timeMap.set(values.id,{time : values.time,days : values.days})
+    }
+
+    powerComputer(computer : Computer){
+      if (this.currentUser && this.currentUser.roles) {
+        var computerId = computer.id;
+        var username = this.currentUser.username
+        try {
+          var days = this.timeMap.get(computer.id).days
+          var time = this.timeMap.get(computer.id).time
+        } catch (error) {
+          this.message = error
+        }
+        if(days && time){
+
+          ComputerService.schedulePowerOn(computerId,username,days,time).then(
+            (response) => {
+              this.message = response.data
+            },
+            (error) => {
+              this.message =
+                (error.response && error.response.data && error.response.data.message) ||
+                error.message ||
+                error.toString();
+            }
+          );
+        }
+        else{
+          ComputerService.tryToPowerComputerOn(computer.mac,username).then(
+            (response) => {
+              this.message = response.data
+            },
+            (error) => {
+              this.message =
+                (error.response && error.response.data && error.response.data.message) ||
+                error.message ||
+                error.toString();
+            }
+          );
+        }
+      }
     }
 }
 </script>

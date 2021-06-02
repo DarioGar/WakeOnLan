@@ -25,7 +25,6 @@ def checkMAC(MAC):
     """
     Checks if the format of the given MAC is correct
     """
-    print(MAC)
     if re.match("[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$", MAC.lower()):
         return MAC
     else:

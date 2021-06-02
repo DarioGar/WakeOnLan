@@ -1,19 +1,23 @@
 from flask import jsonify, make_response
+from flask_restx import cors
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 from flask_cors import cross_origin
+from api.reusable import checkMAC
 from api.v1 import api
 from flask_restx import Resource
 from core import limiter, cache
+from wakeonlan import send_magic_packet
 from utils import handle400error, handle404error, handle500error
 from api.models.Computer import Computer
+from api.mac_arguments import mac_arguments
 
-mac_ns = api.namespace('macs',description='Manages MACS for the users')
+mac_ns = api.namespace('macs',description='Manages MACS for the users',decorators=[cors.crossdomain(origin="*")])
 
 
-@mac_ns.route('/<username>',methods=['GET'])
-class Assign(Resource):
+@mac_ns.route('/<username>',methods=['GET','OPTIONS'])
+class RetrieveComputers(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
@@ -33,23 +37,31 @@ class Assign(Resource):
 		except:
 			handle500error(mac_ns)
 
-@mac_ns.route('/<MAC>',methods=['GET','OPTIONS'])
-class Assign(Resource):
+@mac_ns.route('/mac',methods=['GET','POST','OPTIONS'])
+class PowerOn(Resource):
+	@cross_origin()
+	@api.expect(mac_arguments)
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
 	@api.response(404, 'Data not found')
 	@api.response(500, 'Unhandled errors')
 	@api.response(400, 'Invalid parameters')
 	@cache.cached(timeout=1, query_string=True)
-	@jwt_required
-	def get(self,username):
+	@jwt_required()
+	def post(self):
 		"""
 		Returns all the information about the computer
 		"""
 		try:
-			verify_jwt_in_request()
-			claims = get_jwt()
-			if claims["is_administrator"]:
-				responseData = Computer.fetchAll()
+			args = mac_arguments.parse_args()
+			print("Entra")
+			MAC = args['mac']
+			username = args['username']
+			responseData = ""
+			formattedMAC = MAC.replace('-',':')
+			if(checkMAC(formattedMAC)):
+				responseData = send_magic_packet(formattedMAC)
+			response = jsonify(responseData)
+			return make_response(response,200)
 		except:
-			handle404error(mac_ns,'Unknown username')
+			handle500error(mac_ns)

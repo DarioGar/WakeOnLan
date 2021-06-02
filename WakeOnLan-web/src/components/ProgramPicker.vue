@@ -1,10 +1,10 @@
 <template>
 <v-container fluid>
     <v-select
-      v-model="selectedPrograms"
+      v-model="computer.selectedPrograms"
       :items="programs"
       @input="emitPrograms"
-      label="Programs"
+      label="Programs(optional)"
       multiple
     >
     </v-select>
@@ -14,6 +14,7 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
 import { namespace } from "vuex-class";
+
 const Auth = namespace("Auth");
 
 @Component
@@ -75,7 +76,8 @@ const Auth = namespace("Auth");
     throw new Error("Method not implemented.");
   }
 
-  @Prop({default: []}) selectedPrograms!: []
+  @Prop() computer: any
+
 
   @Emit()
     emitPrograms(programs : any) {

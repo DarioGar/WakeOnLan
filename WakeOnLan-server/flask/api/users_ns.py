@@ -1,14 +1,13 @@
 import api.reusable
 from flask_restx import Resource
-from flask import request, jsonify, make_response
+from flask import jsonify, make_response
 from flask_restx import cors
 from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies
 from flask_jwt_extended import jwt_required
 from api.user_arguments import user_args_name_arguments, new_user_arguments, user_delete_arguments
-from api.user_models import user_model
 from api.reusable import get_hashed_password
-from api.v1 import api,con
+from api.v1 import api
 from core import limiter, cache
 from utils import handle400error, handle404error, handle500error
 from api.models.User import User

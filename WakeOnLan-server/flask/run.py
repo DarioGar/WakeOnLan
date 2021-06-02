@@ -3,10 +3,12 @@ from flask_jwt_extended import JWTManager
 from api.users_ns import users_ns
 from flask_cors import CORS
 import config
+import datetime
 from api.v1 import api
 from core import cache, limiter
 from api.users_ns import users_ns
 from api.mac_ns import mac_ns
+from api.schedule_ns import schedule_ns
 
 app = Flask(__name__)
 
@@ -32,7 +34,7 @@ def get_authors():
 __version__ = get_version()
 __author__ = get_authors()
 
-namespaces = [ users_ns , mac_ns]
+namespaces = [ users_ns , mac_ns,schedule_ns]
 @app.after_request
 def after_request(response):
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
@@ -59,6 +61,7 @@ def initialize_app(flask_app):
     cache.init_app(flask_app)
     app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=3)
     jwt = JWTManager(app)
     flask_app.register_blueprint(v1)
     flask_app.config.from_object(config)
