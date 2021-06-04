@@ -61,8 +61,8 @@ CREATE TABLE IF NOT EXISTS "schedule_bootup" (
   "user_id" int,
   "computer_id" int,
   "time" timestamp DEFAULT (now()),
-  "days" int[7],
-  "created_at" varchar
+  "days" varchar[7],
+  "created_at" varchar DEFAULT (now())
 );
 
 CREATE TABLE IF NOT EXISTS "computers" (
@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS "computers" (
   "name" varchar,
   "mac" varchar,
   "cpu" varchar,
+  "gpu" varchar,
+  "ip" varchar,
   "ram" integer DEFAULT 0,
   "ssd" boolean DEFAULT false,
   "os" os_type,
@@ -121,3 +123,5 @@ ALTER TABLE "rooms" ADD FOREIGN KEY ("group_id") REFERENCES "work_group" ("id");
 COMMENT ON COLUMN "bootup_log"."booted_at" IS 'When computer was booted';
 
 COMMENT ON COLUMN "schedule_bootup"."created_at" IS 'When schedule was created';
+
+ALTER TABLE "schedule_bootup" ADD CONSTRAINT time_days_unique UNIQUE ("computer_id","time", "days");

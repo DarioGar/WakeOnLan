@@ -1,9 +1,11 @@
 from flask import Flask, request, Blueprint, redirect
 from flask_jwt_extended import JWTManager
-from api.users_ns import users_ns
 from flask_cors import CORS
 import config
+import time
 import datetime
+import schedule
+import threading
 from api.v1 import api
 from core import cache, limiter
 from api.users_ns import users_ns
@@ -34,6 +36,8 @@ def get_authors():
 __version__ = get_version()
 __author__ = get_authors()
 
+
+
 namespaces = [ users_ns , mac_ns,schedule_ns]
 @app.after_request
 def after_request(response):
@@ -48,9 +52,15 @@ def register_redirection():
     """
     return redirect(f'{request.url_root}/{config.URL_PREFIX}', code=302)
 
+def schedule_powerOn():
+    while True:
+        schedule.run_pending()
+        print("I'm running on thread %s" % threading.current_thread())
+        time.sleep(60)
+
 def initialize_app(flask_app):
     """
-    This function initializes the Flask Application, adds the namespace and registers the blueprint.
+    This function initializes the Flask Application, adds the namespace,registers the blueprint configures the JWT and starts the schedule thread.
     """
 
     CORS(flask_app,supports_credentials=True,resources={r'/*': {'origins': '*'}})
@@ -69,6 +79,9 @@ def initialize_app(flask_app):
     for ns in namespaces:
         api.add_namespace(ns)
 
+    job_thread = threading.Thread(target=schedule_powerOn)
+    job_thread.start()
+
 def main():
     initialize_app(app)
     separator_str = ''.join(map(str, ["=" for i in range(175)]))
@@ -78,7 +91,7 @@ def main():
     print(f'Version: {get_version()}')
     print(f'Base URL: http://localhost:{config.PORT}{config.URL_PREFIX}')
     print(separator_str)
-    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG_MODE)
+    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG_MODE, use_reloader=False)
 
 
 

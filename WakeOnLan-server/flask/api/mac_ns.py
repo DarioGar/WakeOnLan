@@ -8,10 +8,10 @@ from api.reusable import checkMAC
 from api.v1 import api
 from flask_restx import Resource
 from core import limiter, cache
-from wakeonlan import send_magic_packet
 from utils import handle400error, handle404error, handle500error
 from api.models.Computer import Computer
 from api.mac_arguments import mac_arguments
+import schedule
 
 mac_ns = api.namespace('macs',description='Manages MACS for the users',decorators=[cors.crossdomain(origin="*")])
 
@@ -50,18 +50,14 @@ class PowerOn(Resource):
 	@jwt_required()
 	def post(self):
 		"""
-		Returns all the information about the computer
+		Sends a magic packet to the mac received
 		"""
 		try:
 			args = mac_arguments.parse_args()
-			print("Entra")
 			MAC = args['mac']
 			username = args['username']
-			responseData = ""
-			formattedMAC = MAC.replace('-',':')
-			if(checkMAC(formattedMAC)):
-				responseData = send_magic_packet(formattedMAC)
-			response = jsonify(responseData)
+			Computer.powerOn(MAC)
+			response = jsonify("Trying to wake computer")
 			return make_response(response,200)
 		except:
 			handle500error(mac_ns)

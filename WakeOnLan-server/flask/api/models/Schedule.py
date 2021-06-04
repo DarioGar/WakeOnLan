@@ -11,6 +11,6 @@ class Schedule:
     def insert(self):
         cur = con.cursor()
         query = "INSERT INTO schedule_bootup (user_id,computer_id,time,days) values (%s,%s,%s,%s) RETURNING id"
-        cur.execute(query,(self.user_id,self.computer_id,self.time,self.days))
+        cur.execute(query,(self.user_id,self.computer_id,'00:'+self.time,self.days))
         con.commit()
-        return cur.fetchone()[0]
+        return cur.fetchone()

@@ -1,4 +1,8 @@
+from datetime import date
 from api.v1 import con
+from api.reusable import checkMAC
+from wakeonlan import send_magic_packet
+import schedule
 
 class Computer:
 
@@ -40,3 +44,21 @@ class Computer:
             rows = cur.fetchall()
             computers.append(rows)
         return list(set(computers[0]))
+
+    @staticmethod
+    def powerOn(MAC):
+        formattedMAC = MAC.replace('-',':')
+        if(checkMAC(formattedMAC)):
+            responseData = send_magic_packet(formattedMAC)
+        print(responseData)
+        print(date.today())
+        return schedule.CancelJob
+
+    @staticmethod
+    def fetch(id):
+        cur = con.cursor()
+        query = "select * from public.computers where id = %s"
+        cur.execute(query,(id,))
+        computer = cur.fetchone()
+        return computer
+        

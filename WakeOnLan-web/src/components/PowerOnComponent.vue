@@ -2,14 +2,12 @@
   <v-container >
       <v-menu
         ref="menu"
-        v-model="menu2"
+        color="white"
+        v-model="menu"
         :close-on-content-click="false"
-        :nudge-right="40"
+        :nudge-top="100"
         :return-value.sync="time"
         transition="scale-transition"
-        offset-y
-        max-width="290px"
-        min-width="290px"
       >
         <template v-slot:activator="{ on, attrs }">
           <v-text-field
@@ -21,24 +19,24 @@
             v-on="on"
           ></v-text-field>
         </template>
-
+        <v-select
+        v-model="powerOnDays"
+        :items="days"
+        background-color="white"
+        label="Days to power on"
+        :input="emitTime(this.time)"
+        multiple
+        ></v-select>
         <v-time-picker
-          v-if="menu2"
+          v-if="menu"
           v-model="time"
-          full-width
+          no-title
+          format="24hr"
           @click:minute="$refs.menu.save(time)"
           :allowed-minutes="allowedStep"
           @input="emitTime"
         >
         </v-time-picker>
-          <v-select
-          v-model="powerOnDays"
-          :items="days"
-          label="Days to power on"
-          dense
-          :input="emitTime(this.time)"
-          multiple
-          ></v-select>
       </v-menu>
   </v-container>
   
@@ -53,7 +51,7 @@ const Auth = namespace("Auth");
 @Component
   export default class PowerOnComponent extends Vue{
   time =  null
-  menu2 = false
+  menu = false
   days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
   powerOnDays = []
   allowedStep(m : any){
