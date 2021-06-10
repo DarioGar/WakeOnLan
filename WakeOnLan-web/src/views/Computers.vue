@@ -22,7 +22,7 @@
             </v-col>
           </v-row>
           <v-card-actions class="mx-5">
-            <v-btn @click="computerClicked(computer.id);computer.reveal = !computer.reveal ">
+            <v-btn @click="computer.reveal = !computer.reveal ">
               More
             </v-btn>
             <v-spacer></v-spacer>
@@ -64,12 +64,8 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
     }
 })
   export default class Computers extends Vue{
-    private selectedId = -1
     private computers : Computer[] = []
     private message = {}
-    //Will store the selected programs in the v-select
-    private programsToLaunch = []
-    
     private timeMap = new Map()
 
     @Auth.Getter
@@ -126,10 +122,6 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
                   }
                 );
       }
-    }
-
-    computerClicked(pc : number){
-      this.selectedId = pc;
     }
     savePrograms(programs : any){
       return

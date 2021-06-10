@@ -10,6 +10,16 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
+CREATE TYPE "invitation_status" AS ENUM (
+  'on hold',
+  'accepted',
+  'refused'
+);
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
 CREATE TYPE "os_type" AS ENUM (
   'windows',
   'linux',
@@ -46,6 +56,15 @@ CREATE TABLE IF NOT EXISTS "users" (
   "username" varchar,
   "password" varchar,
   "role" user_role,
+  "created_at" timestamp DEFAULT (now())
+);
+
+CREATE TABLE IF NOT EXISTS "invitations" (
+  "id" SERIAL PRIMARY KEY,
+  "sender" int,
+  "receiver" int,
+  "groupId" int,
+  "status" invitation_status,
   "created_at" timestamp DEFAULT (now())
 );
 
@@ -120,8 +139,18 @@ ALTER TABLE "work_group" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "rooms" ADD FOREIGN KEY ("group_id") REFERENCES "work_group" ("id");
 
+ALTER TABLE "invitations" ADD FOREIGN KEY ("sender") REFERENCES "users" ("id");
+
+ALTER TABLE "invitations" ADD FOREIGN KEY ("receiver") REFERENCES "users" ("id");
+
+ALTER TABLE "invitations" ADD FOREIGN KEY ("groupId") REFERENCES "work_group" ("id");
+
 COMMENT ON COLUMN "bootup_log"."booted_at" IS 'When computer was booted';
 
 COMMENT ON COLUMN "schedule_bootup"."created_at" IS 'When schedule was created';
 
+ALTER TABLE "schedule_bootup" DROP CONSTRAINT IF EXISTS time_days_unique;
 ALTER TABLE "schedule_bootup" ADD CONSTRAINT time_days_unique UNIQUE ("computer_id","time", "days");
+
+ALTER TABLE "invitations" DROP CONSTRAINT IF EXISTS unique_invitation;
+ALTER TABLE "invitations" ADD CONSTRAINT unique_invitation UNIQUE ("sender","receiver", "groupId");

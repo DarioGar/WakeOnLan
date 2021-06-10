@@ -11,6 +11,23 @@ class User:
         self.roles = []
 
     @staticmethod
+    def sendInvite(sender,to,groupId):
+        cur = con.cursor()
+        query = "select id from public.users where username = %s"
+        cur.execute(query,(sender,))
+        sender = cur.fetchone()
+        cur.execute(query,(to,))
+        receiver = cur.fetchone()
+        try:
+            query = "INSERT INTO invitations (sender,receiver,work_group,status) VALUES (%s,%s,%s,%s) RETURNING id"
+            cur.execute(query,(sender[0],receiver[0],groupId,"on hold"))
+            con.commit()
+            return cur.fetchone()
+        except:
+            con.rollback()
+            return (-1,)
+        
+    @staticmethod
     def exists(username):
         cur = con.cursor()
         query = "select count(1) from public.users where username = %s"
@@ -24,6 +41,16 @@ class User:
         cur.execute(query,(username,))
         rows = cur.fetchall()
         return rows[0]
+    @staticmethod
+    def getWorkGroups(username):
+        cur = con.cursor()
+        query = "select id from public.users where username = %s"
+        cur.execute(query,(username,))
+        user = cur.fetchone()
+        query = "select * from public.work_group where user_id = %s"
+        cur.execute(query,(user[0],))
+        rows = cur.fetchall()
+        return rows
     @staticmethod
     def delete(username):
         cur = con.cursor()

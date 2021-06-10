@@ -1,9 +1,7 @@
 <template>
   <v-app>  
     <v-main>
-      <v-row justify="center" class="mx-1 my-5">
           <UserTable/>
-      </v-row>
     </v-main>
   </v-app>  
 </template>

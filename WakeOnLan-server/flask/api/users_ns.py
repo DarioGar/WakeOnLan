@@ -5,7 +5,7 @@ from flask_restx import cors
 from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies
 from flask_jwt_extended import jwt_required
-from api.user_arguments import user_args_name_arguments, new_user_arguments, user_delete_arguments
+from api.user_arguments import user_args_name_arguments, new_user_arguments,invite_user_arguments
 from api.reusable import get_hashed_password
 from api.v1 import api
 from core import limiter, cache
@@ -80,7 +80,6 @@ class userCollection(Resource):
 			# Comprobar si existe el usuario y la contraseña en la base de datos
 			username = args.username
 			pw = args.password
-			
 			data = User.authenticate(username,pw)
 			if(data==None):
 				raise Exception()
@@ -125,7 +124,7 @@ class user(Resource):
 		
 		return handle500error(users_ns)
 
-@users_ns.route('/<username>',methods=['DELETE','OPTIONS'])
+@users_ns.route('/<username>',methods=['DELETE','OPTIONS','GET'])
 
 class user(Resource):
 	cross_origin()
@@ -150,3 +149,64 @@ class user(Resource):
 			handle400error(users_ns,'Invalid username')
 		
 		return handle500error(users_ns)
+
+	cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def get(self,username):
+		"""
+		Gets a user's work groups
+		"""
+		try:
+			if username is not None and User.exists(username):
+				groups = User.getWorkGroups(username)
+				if(len(groups) > 0):
+					return make_response(jsonify(groups),200)
+				else:
+					return make_response(jsonify("No groups assigned to this user"),200)
+			else:	
+				raise Exception('Something went wrong with deletion')			
+		except:
+			handle400error(users_ns,'Invalid username')
+		
+		return handle500error(users_ns)
+
+@users_ns.route('/invite',methods=['POST','OPTIONS','GET'])
+
+class user(Resource):
+	cross_origin()
+	@limiter.limit('1000/hour')
+	@api.expect(invite_user_arguments)
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def post(self):
+		"""
+		Sends an invitation to the user
+		"""
+		try:
+			args = invite_user_arguments.parse_args()
+			sender = args.sender
+			to = args.to
+			groupId = args.group
+			try:
+				if groupId is not None and User.exists(to):
+					id = User.sendInvite(sender,to,groupId)
+					if(id[0]!=-1):
+						return make_response(jsonify(id[0],200))
+					else:
+						return make_response(jsonify(-1),409)
+				else:
+					raise Exception()
+			except:
+				handle400error(users_ns,'Invalid parameters')
+		except:
+			return handle500error(users_ns)

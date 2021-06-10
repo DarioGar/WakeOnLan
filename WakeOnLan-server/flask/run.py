@@ -79,8 +79,8 @@ def initialize_app(flask_app):
     for ns in namespaces:
         api.add_namespace(ns)
 
-    job_thread = threading.Thread(target=schedule_powerOn)
-    job_thread.start()
+    #job_thread = threading.Thread(target=schedule_powerOn)
+    #job_thread.start()
 
 def main():
     initialize_app(app)

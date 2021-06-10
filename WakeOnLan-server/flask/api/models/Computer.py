@@ -49,9 +49,7 @@ class Computer:
     def powerOn(MAC):
         formattedMAC = MAC.replace('-',':')
         if(checkMAC(formattedMAC)):
-            responseData = send_magic_packet(formattedMAC)
-        print(responseData)
-        print(date.today())
+             send_magic_packet(formattedMAC)
         return schedule.CancelJob
 
     @staticmethod
