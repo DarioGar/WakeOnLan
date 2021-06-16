@@ -4,4 +4,4 @@
 Descripción
 
 ### DB Model
-https://dbdiagram.io/d/6075bc07b6aeb3052d8fed4c
+https://dbdiagram.io/d/60ca1e7c0c1ff875fcd52273
