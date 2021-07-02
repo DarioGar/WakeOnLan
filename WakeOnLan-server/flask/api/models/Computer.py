@@ -18,32 +18,42 @@ class Computer:
     def fetchComputerFor(username):
         cur = con.cursor()
         computers = []
+        # Get both role and id from the user
         query = "select role,id from public.users where username = %s"
         cur.execute(query,(username,))
         user = cur.fetchone()
-        # If the role is project_manager we return all the computers assigned to the room
+
         
-        if user[0] == 'project_manager':
-            query = "SELECT DISTINCT  rooms.id FROM rooms INNER JOIN work_group ON work_group.id = rooms.group_id where work_group.user_id = %s"
-            cur.execute(query,(user[1],))
-            rows = cur.fetchall()
-            # We look for all the computers in every room and append them to the computers array
-            for row in rows:
-                query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,computers.id FROM computers INNER JOIN rooms ON computers.room_id = rooms.id where rooms.id = %s"
-                cur.execute(query,(row[0],))
-                computersInRoom = cur.fetchall()
-                computers.append(computersInRoom)
+        # CASE 1 User is an admin, return everything
         if user[0] == 'admin':
             query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,computers.id FROM computers"
             cur.execute(query,)
             computersInRoom = cur.fetchall()
             computers.append(computersInRoom)
-        if user[0] != 'admin':
-            query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,computers.id FROM permissions INNER JOIN computers on computers.id = permissions.computer_id where permissions.user_id = %s"
-            cur.execute(query,(user[1],))
-            rows = cur.fetchall()
-            computers.append(rows)
+            return list(set(computers[0]))
+        # CASE 2a User belongs to some group, add computers assigned to the group
+        query = "select group_id from group_member where user_id = %s"
+        cur.execute(query,(user[1],))
+        work_groups = cur.fetchall()
+        if len(work_groups) != 0:
+            for group_id in work_groups:
+                    # Necesita cambio URGENTE
+                    query = "SELECT DISTINCT rooms.id FROM rooms where group_id = %s"
+                    cur.execute(query,(group_id[0],))
+                    rooms = cur.fetchall()
+                    # We look for all the computers in every room and append them to the computers array
+                    for room in rooms:
+                        query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,computers.id FROM computers INNER JOIN rooms ON computers.room_id = rooms.id where rooms.id = %s"
+                        cur.execute(query,(room[0],))
+                        computersInRoom = cur.fetchall()
+                        computers.append(computersInRoom)
+        # CASE 3 Check if the user has been given permissions to a specific computer
+        query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,computers.id FROM permissions INNER JOIN computers on computers.id = permissions.computer_id where permissions.user_id = %s"
+        cur.execute(query,(user[1],))
+        rows = cur.fetchall()
+        computers.append(rows)
         return list(set(computers[0]))
+        
 
     @staticmethod
     def powerOn(MAC):

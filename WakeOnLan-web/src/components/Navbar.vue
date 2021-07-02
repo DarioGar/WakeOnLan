@@ -36,21 +36,15 @@ const Auth = namespace("Auth");
 @Component
 export default class NavBar extends Vue {
     drawer = false;
-    adminlinks = [
+    loggedInlinks = [
         {icon: 'mdi-login',text: 'Login', route: '/login'},
-        {icon: 'mdi-account',text: 'Profile', route: '/user'},
+        {icon: 'mdi-account',text: 'Users', route: '/user'},
         {icon: 'mdi-view-dashboard',text: 'DashBoard', route: '/home'},
         {icon: 'mdi-laptop',text: 'Computers', route: '/computers'},
         {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'}
     ];
     link = [
         {icon: 'mdi-login',text: 'Login', route: '/login'},
-    ];
-    loggedInlinks = [
-        {icon: 'mdi-login',text: 'Login', route: '/login'},
-        {icon: 'mdi-view-dashboard',text: 'DashBoard', route: '/home'},
-        {icon: 'mdi-laptop',text: 'Computers', route: '/computers'},
-        {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'}
     ];
 
     @Auth.State("user")
@@ -60,12 +54,8 @@ export default class NavBar extends Vue {
     private signOut!: () => void;
 
     getLinks() {
-        if (this.currentUser && this.currentUser.roles) {
-            if(this.currentUser.roles.includes("admin"))
-                return this.adminlinks
-            else
+        if (this.currentUser && this.currentUser.roles) 
                 return this.loggedInlinks
-            }
         return this.link
     }
 

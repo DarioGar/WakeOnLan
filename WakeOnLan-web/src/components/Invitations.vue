@@ -8,12 +8,12 @@
             >
             <v-card >
                 <v-card-actions class="mx-5">
-                    <span>{{getInvitations()}}</span>
+                  <span>From: {{invitation.sender}} at: {{invitation.time}}</span>
                     <v-spacer></v-spacer>
-                    <v-btn>
+                    <v-btn @click="acceptInvitation(invitation)">
                         Accept
                     </v-btn>
-                    <v-btn>
+                    <v-btn @click="refuseInvitation(invitation)">
                         Refuse
                     </v-btn>
                 </v-card-actions>
@@ -29,11 +29,12 @@
 <script lang = "ts">
 import { Component, Vue } from "vue-property-decorator";
 import { namespace } from "vuex-class";
+import GroupService from "../services/GroupService";
 const Auth = namespace("Auth");
 
 @Component
 export default class Invitations extends Vue{
-    private message = {}
+    private message = ""
     private invitations = [{}]
 
     @Auth.Getter
@@ -51,7 +52,41 @@ export default class Invitations extends Vue{
     }
 
     getInvitations(){
-        return ""
+      GroupService.getInvitationsFor(this.currentUser.username).then(
+        (response) => {
+            response.data.forEach((element : any) => {
+              if(element[4]=='on hold'){
+                var invitation = {
+                  id : element[0],
+                  sender : element[1],
+                  receiver : element[2],
+                  time : element[5],
+                  work_group : element[3]
+                }
+                this.invitations.push(invitation)
+              }
+
+          });
+        },
+        (error) => {
+          this.message =
+            (error.response && error.response.data && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          }
+      )
+    }
+    acceptInvitation(inv : any){
+      var id = inv.id
+      var groupId = inv.work_group
+      var userId = inv.receiver
+      GroupService.accept(id,groupId,userId)
+      this.$router.push('/groups')
+    }
+    refuseInvitation(inv : any){
+      var id = inv[0]
+      GroupService.deny(id)
+      this.$router.push('/groups')
     }
 }
 </script>

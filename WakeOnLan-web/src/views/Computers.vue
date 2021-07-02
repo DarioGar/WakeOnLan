@@ -65,7 +65,7 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
 })
   export default class Computers extends Vue{
     private computers : Computer[] = []
-    private message = {}
+    private message = ""
     private timeMap = new Map()
 
     @Auth.Getter
@@ -98,6 +98,8 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
       if (this.currentUser && this.currentUser.roles) {
             ComputerService.getAvailableComputersForUser(this.currentUser.username).then(
                   (response) => {
+                    if(response.data.length == 0)
+                      this.message = "No computers assigned yet"
                     response.data.forEach((element: any) => {
                       var computer : Computer = {
                         ip : element[0],

@@ -12,6 +12,8 @@
 import {Component,Vue} from "vue-property-decorator";
 import Invitations from '../components/Invitations.vue'
 import GroupList from '../components/GroupList.vue'
+import { namespace } from "vuex-class";
+const Auth = namespace("Auth");
 @Component({
   components:{
     Invitations,
@@ -19,10 +21,15 @@ import GroupList from '../components/GroupList.vue'
   }
 })
 export default class Group extends Vue {
+  
 
-    myGroups(){
-      // Obtener los grupos de los que se es miembro
-      return "Ninguno"
+  @Auth.State("user")
+  private currentUser!: any;
+
+  mounted() {
+    if (!this.currentUser) {
+      this.$router.push("/login");
     }
+  }
 }
 </script>

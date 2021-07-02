@@ -15,10 +15,10 @@ from api.models.Schedule import Schedule
 import schedule
 import time
 
-schedule_ns = api.namespace('schedule',description='Manages the schedule for when the computers have to power up',decorators=[cors.crossdomain(origin="*")])
+schedules_ns = api.namespace('schedule',description='Manages the schedule for when the computers have to power up',decorators=[cors.crossdomain(origin="*")])
 
 
-@schedule_ns.route('',methods=['GET','POST','OPTIONS'])
+@schedules_ns.route('',methods=['GET','POST','OPTIONS'])
 
 class SchedulePowerUp(Resource):
 	@limiter.limit('1000/hour')
@@ -41,10 +41,10 @@ class SchedulePowerUp(Resource):
 			days = args['days']
 			time = args['time']
 			user = args['username']
-			userId = User.get(user)[0]
+			userId = User.fetchByUsername(user)[0]
 			scheduleobj = Schedule(userId,computer,time,days)
 		except:
-			handle400error(schedule_ns,"The provided arguments are not correct. Please, check the swagger documentation at /v1")
+			handle400error(schedules_ns,"The provided arguments are not correct. Please, check the swagger documentation at /v1")
 		try:
 			result = scheduleobj.insert()[0]
 			computer = Computer.fetch(computer)
@@ -67,7 +67,7 @@ class SchedulePowerUp(Resource):
 				elif day.lower() == "sunday":
 					schedule.every().sunday.at(time).do(Computer.powerOn,computer[2])
 		except:
-			handle500error(schedule_ns)
+			handle500error(schedules_ns)
 		response = jsonify(result)
 		return make_response(response,200)
 		

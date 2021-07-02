@@ -1,9 +1,9 @@
 <template>
   <v-main>
+    <span>{{message}}</span>
   <v-row justify="center" class="mx-5">
     <v-dialog
       v-model="information"
-      width="500"
     >
       <v-card>
         <v-card-title>
@@ -32,6 +32,7 @@
           <v-dialog
             v-model="dialog"
             max-width="500px"
+            @click:outside="close()"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -61,6 +62,7 @@
                         label="Username*"
                         required
                         v-model="user.username"
+                        :disabled="editing()"
                       ></v-text-field>
                     </v-col>
                     <v-col 
@@ -194,6 +196,7 @@
 
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { namespace } from "vuex-class";
+import GroupService from "../services/GroupService";
 import UserService from "../services/UserService";
 const Auth = namespace("Auth");
 
@@ -217,6 +220,7 @@ const Auth = namespace("Auth");
     private users = [{}]
     private workGroups = [{}]
     private editedIndex = -1
+    private password = ""
     private user = {username:"",email:"",role:"",fullname:"",password:""}
     formTitle () : any {
         return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -243,7 +247,7 @@ const Auth = namespace("Auth");
     }
 
     sendInvite(to:string,group:number){
-      UserService.sendInvite(this.currentUser.username,to,group,).then(
+      GroupService.sendInvite(this.currentUser.username,to,group,).then(
         (response) => {
           response.data
           this.message = "Invitación enviada a " + to
@@ -261,7 +265,7 @@ const Auth = namespace("Auth");
 
     getWorkGroup(){
       this.workGroups.length = 0
-      UserService.getWorkGroup(this.currentUser.username).then(
+      GroupService.getWorkGroup(this.currentUser.username).then(
         (response) => {
           response.data.forEach((element : any) => {
             var workGroup = {
@@ -310,6 +314,7 @@ const Auth = namespace("Auth");
     editItem (item : any) {
     this.editedIndex = this.users.indexOf(item)
     this.user = Object.assign({}, item)
+    this.password = this.user.password
     this.dialog = true
     }
 
@@ -325,6 +330,7 @@ const Auth = namespace("Auth");
     this.deleteUser(this.user.username)
     this.closeDelete()
     }
+
 
     deleteUser(username : any){
       UserService.delUser(username).then(
@@ -350,6 +356,10 @@ const Auth = namespace("Auth");
     })
     }
 
+    editing () {
+      return this.editedIndex === -1 ? true : false
+    }
+
     closeDelete () {
     this.dialogDelete = false
     this.$nextTick(() => {
@@ -361,7 +371,7 @@ const Auth = namespace("Auth");
     async save () {
     //Cambiar para que al guardar se inserte en la BBDD
     //REVISAR
-    this.deleteUser(this.user.username); 
+    if(this.editing())
     this.register(this.user).then(
           (data) => {
             this.message = data.message;
@@ -373,8 +383,34 @@ const Auth = namespace("Auth");
             this.information = true
           }
         );
+    else
+      //Checking if the password has being changed, we need to hash it in the back end
+      if(this.password!= this.user.password)
+        UserService.updateUserData(this.user.username,this.user.email,this.user.password,this.user.role,this.user.fullname,true).then(
+            (response) => {
+              this.message = response.data
+              this.getUsers()
+              this.information = true
+            },
+            (error) => {
+              this.message = error;
+              this.information = true
+            }
+          );
+      else
+        UserService.updateUserData(this.user.username,this.user.email,this.user.password,this.user.role,this.user.fullname,false).then(
+            (response) => {
+              this.message = response.data
+              this.getUsers()
+              this.information = true
+            },
+            (error) => {
+              this.message = error;
+              this.information = true
+            }
+          );
+
     this.close()
-    
     }
   }
 </script>

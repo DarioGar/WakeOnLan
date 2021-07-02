@@ -13,10 +13,10 @@ from api.models.Computer import Computer
 from api.mac_arguments import mac_arguments
 import schedule
 
-mac_ns = api.namespace('macs',description='Manages MACS for the users',decorators=[cors.crossdomain(origin="*")])
+macs_ns = api.namespace('macs',description='Manages MACS for the users',decorators=[cors.crossdomain(origin="*")])
 
 
-@mac_ns.route('/<username>',methods=['GET','OPTIONS'])
+@macs_ns.route('/<username>',methods=['GET','OPTIONS'])
 class RetrieveComputers(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
@@ -35,9 +35,9 @@ class RetrieveComputers(Resource):
 			response = jsonify(responseData)
 			return make_response(response,200)
 		except:
-			handle500error(mac_ns)
+			handle500error(macs_ns)
 
-@mac_ns.route('/mac',methods=['GET','POST','OPTIONS'])
+@macs_ns.route('/mac',methods=['GET','POST','OPTIONS'])
 class PowerOn(Resource):
 	@cross_origin()
 	@api.expect(mac_arguments)
@@ -60,4 +60,4 @@ class PowerOn(Resource):
 			response = jsonify("Trying to wake computer")
 			return make_response(response,200)
 		except:
-			handle500error(mac_ns)
+			handle500error(macs_ns)

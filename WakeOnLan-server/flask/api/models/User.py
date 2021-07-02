@@ -11,9 +11,22 @@ class User:
         self.roles = []
 
     @staticmethod
-    def sendInvite(sender,to,groupId):
+    def getInvitations(username):
         cur = con.cursor()
         query = "select id from public.users where username = %s"
+        cur.execute(query,(username,))
+        user = cur.fetchone()
+        query = "select * from public.invitations where receiver = %s"
+        cur.execute(query,(user[0],))
+        rows = cur.fetchall()
+        return rows
+        
+
+
+    @staticmethod
+    def sendInvite(sender,to,groupId):
+        cur = con.cursor()
+        query = "SELECT id FROM public.users WHERE username = %s"
         cur.execute(query,(sender,))
         sender = cur.fetchone()
         cur.execute(query,(to,))
@@ -26,6 +39,35 @@ class User:
         except:
             con.rollback()
             return (-1,)
+
+    @staticmethod
+    def acceptInvitation(invitationID):
+        cur = con.cursor()
+        try:
+            query = "UPDATE invitations SET status = 'accepted' WHERE id = %s"
+            cur.execute(query,(invitationID,))
+            con.commit()
+        except Exception as e:
+            return e
+        return 0
+
+    @staticmethod
+    def addUserToGroup(userID,groupID):
+        cur = con.cursor()
+        try:
+            query = "INSERT INTO group_member (user_id,group_id) VALUES (%s,%s)"
+            cur.execute(query,(userID,groupID))
+            con.commit()
+        except Exception as e:
+            return 0
+
+    @staticmethod
+    def denyInvitation(invitationID):
+        cur = con.cursor()
+        query = "UPDATE invitations SET status = 'refused' WHERE id = %s"
+        cur.execute(query,(invitationID,))
+        con.commit()
+        return cur.fetchone()
         
     @staticmethod
     def exists(username):
@@ -35,30 +77,44 @@ class User:
         rows = cur.fetchall()
         return rows[0]
     @staticmethod
-    def get(username):
+    def fetchByUsername(username):
         cur = con.cursor()
         query = "select * from public.users where username = %s"
         cur.execute(query,(username,))
         rows = cur.fetchall()
         return rows[0]
-    @staticmethod
-    def getWorkGroups(username):
-        cur = con.cursor()
-        query = "select id from public.users where username = %s"
-        cur.execute(query,(username,))
-        user = cur.fetchone()
-        query = "select * from public.work_group where user_id = %s"
-        cur.execute(query,(user[0],))
-        rows = cur.fetchall()
-        return rows
+
     @staticmethod
     def delete(username):
         cur = con.cursor()
-        query = "delete from public.users where username = %s"
+        query = "delete from users where username = %s"
         cur.execute(query,(username,))
+        print("result")
         con.commit()
         rows = cur.rowcount
         return rows
+
+    @staticmethod
+    def updateUserDataAndPassword(username,pw,fullname,role,email):
+        try:
+            cur = con.cursor()
+            query = "UPDATE users SET (password,full_name,role,email) = (%s,%s,%s,%s) WHERE username = %s"
+            cur.execute(query,(pw,fullname,role,email,username))
+            con.commit()
+            return 0
+        except:
+            return -1
+
+    @staticmethod
+    def updateUserData(username,fullname,role,email):
+        try:
+            cur = con.cursor()
+            query = "UPDATE users SET (full_name,role,email) = (%s,%s,%s) WHERE username = %s"
+            cur.execute(query,(fullname,role,email,username))
+            con.commit()
+            return 0
+        except:
+            return -1
     
     @staticmethod
     def authenticate(username,password):
@@ -81,6 +137,17 @@ class User:
         rows = cur.fetchall()
         if(rows!=None):
             return rows
+        else:
+            return None
+    
+    @staticmethod
+    def fetch(id):
+        cur = con.cursor()
+        query = "select username from public.users where id = %s"
+        cur.execute(query,(id,))
+        rows = cur.fetchone()
+        if(rows!=None):
+            return rows[0]
         else:
             return None
 

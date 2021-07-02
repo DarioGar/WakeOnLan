@@ -9,8 +9,9 @@ import threading
 from api.v1 import api
 from core import cache, limiter
 from api.users_ns import users_ns
-from api.mac_ns import mac_ns
-from api.schedule_ns import schedule_ns
+from api.macs_ns import macs_ns
+from api.schedules_ns import schedules_ns
+from api.groups_ns import groups_ns
 
 app = Flask(__name__)
 
@@ -38,7 +39,7 @@ __author__ = get_authors()
 
 
 
-namespaces = [ users_ns , mac_ns,schedule_ns]
+namespaces = [ users_ns , macs_ns,schedules_ns,groups_ns]
 @app.after_request
 def after_request(response):
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')

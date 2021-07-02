@@ -46,6 +46,45 @@ new_user_arguments.add_argument('email',
 							required=True,
 							help='User email')
 
+
+update_user_arguments = reqparse.RequestParser()
+
+update_user_arguments.add_argument('username',
+							location='json',
+							type=str,
+							required=True,
+							help='User\'s username')
+
+update_user_arguments.add_argument('fullname',
+							location='json',
+							type=str,
+							required=True,
+							help='User full name')
+
+update_user_arguments.add_argument('password',
+							location='json',
+							type=str,
+							required=True,
+							help='User password')
+
+update_user_arguments.add_argument('role',
+							location='json',
+							type=str,
+							required=True,
+							help='User role')
+
+update_user_arguments.add_argument('email',
+							location='json',
+							type=str,
+							required=True,
+							help='User email')
+
+update_user_arguments.add_argument('pw',
+							location='json',
+							type=bool,
+							required=True,
+							help='Is the password being changed? True or False')							
+
 invite_user_arguments = reqparse.RequestParser()
 
 invite_user_arguments.add_argument('sender',
@@ -65,3 +104,23 @@ invite_user_arguments.add_argument('group',
 							type=str,
 							required=True,
 							help='Group ID the user got invited to')
+
+manage_invite_user_arguments = reqparse.RequestParser()
+
+manage_invite_user_arguments.add_argument('id',
+							location='json',
+							type=str,
+							required=True,
+							help='ID of the invitation')
+
+manage_invite_user_arguments.add_argument('groupId',
+							location='json',
+							type=str,
+							required=False,
+							help='ID of the work_group the user is managing')
+
+manage_invite_user_arguments.add_argument('userId',
+							location='json',
+							type=str,
+							required=False,
+							help='ID of the user')

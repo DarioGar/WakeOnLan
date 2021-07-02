@@ -59,11 +59,16 @@ CREATE TABLE IF NOT EXISTS "users" (
   "created_at" timestamp DEFAULT (now())
 );
 
+CREATE TABLE IF NOT EXISTS "permissions" (
+  "user_id" int,
+  "computer_id" int
+);
+
 CREATE TABLE IF NOT EXISTS "invitations" (
   "id" SERIAL PRIMARY KEY,
   "sender" int,
   "receiver" int,
-  "groupId" int,
+  "work_group" int,
   "status" invitation_status,
   "created_at" timestamp DEFAULT (now())
 );
@@ -113,6 +118,11 @@ CREATE TABLE IF NOT EXISTS "work_group" (
   "department" varchar
 );
 
+CREATE TABLE IF NOT EXISTS "group_member" (
+  "group_id" int,
+  "user_id" int 
+);
+
 CREATE TABLE IF NOT EXISTS "rooms" (
   "id" SERIAL PRIMARY KEY,
   "group_id" int,
@@ -129,13 +139,13 @@ ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("i
 
 ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id");
 
-ALTER TABLE "computers" ADD FOREIGN KEY ("last_person") REFERENCES "users" ("id");
+ALTER TABLE "computers" ADD FOREIGN KEY ("last_person") REFERENCES "users" ("id") ON DELETE SET NULL;
 
 ALTER TABLE "computers" ADD FOREIGN KEY ("room_id") REFERENCES "rooms" ("id");
 
 ALTER TABLE "programs" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id");
 
-ALTER TABLE "work_group" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "work_group" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "rooms" ADD FOREIGN KEY ("group_id") REFERENCES "work_group" ("id");
 
@@ -143,7 +153,7 @@ ALTER TABLE "invitations" ADD FOREIGN KEY ("sender") REFERENCES "users" ("id");
 
 ALTER TABLE "invitations" ADD FOREIGN KEY ("receiver") REFERENCES "users" ("id");
 
-ALTER TABLE "invitations" ADD FOREIGN KEY ("groupId") REFERENCES "work_group" ("id");
+ALTER TABLE "invitations" ADD FOREIGN KEY ("work_group") REFERENCES "work_group" ("id");
 
 COMMENT ON COLUMN "bootup_log"."booted_at" IS 'When computer was booted';
 
@@ -153,4 +163,10 @@ ALTER TABLE "schedule_bootup" DROP CONSTRAINT IF EXISTS time_days_unique;
 ALTER TABLE "schedule_bootup" ADD CONSTRAINT time_days_unique UNIQUE ("computer_id","time", "days");
 
 ALTER TABLE "invitations" DROP CONSTRAINT IF EXISTS unique_invitation;
-ALTER TABLE "invitations" ADD CONSTRAINT unique_invitation UNIQUE ("sender","receiver", "groupId");
+ALTER TABLE "invitations" ADD CONSTRAINT unique_invitation UNIQUE ("sender","receiver", "work_group");
+
+ALTER TABLE "group_member" DROP CONSTRAINT IF EXISTS unique_membership;
+ALTER TABLE "group_member" ADD CONSTRAINT unique_membership UNIQUE ("group_id","user_id");
+
+ALTER TABLE "permissions" DROP CONSTRAINT IF EXISTS unique_permission;
+ALTER TABLE "permissions" ADD CONSTRAINT unique_permission UNIQUE ("computer_id","user_id");
