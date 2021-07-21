@@ -1,8 +1,6 @@
 <template>
-    <v-main>
-          <AdminUserTable v-if="checkAdmin()"/>
-          <RegularUserTable v-else/>
-    </v-main>
+    <AdminUserTable v-if="checkAdmin()"/>
+    <RegularUserTable v-else/>
 </template>
 
 <script lang="ts">
