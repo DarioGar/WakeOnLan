@@ -1,6 +1,4 @@
 <template>
-  <v-main>
-    <span>{{message}}</span>
   <v-row justify="center" class="mx-5">
     <v-dialog
       v-model="information"
@@ -189,7 +187,6 @@
       
     </v-data-table>
   </v-row>
-  </v-main>
 </template>
 
 <script lang = "ts">
