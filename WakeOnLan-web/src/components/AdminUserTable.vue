@@ -1,7 +1,6 @@
 <template>
-  <v-main>
-    <span>{{message}}</span>
-  <v-row justify="center" class="mx-5">
+  <v-row justify="center" class="mx-5 mt-3">
+    <v-col cols="8">
     <v-dialog
       v-model="information"
     >
@@ -31,7 +30,6 @@
           <v-spacer></v-spacer>
           <v-dialog
             v-model="dialog"
-            max-width="500px"
             @click:outside="close()"
           >
             <template v-slot:activator="{ on, attrs }">
@@ -127,7 +125,7 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-dialog v-model="dialogDelete">
             <v-card>
               <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
               <v-card-actions>
@@ -186,10 +184,9 @@
           Reset
         </v-btn>
       </template>
-      
     </v-data-table>
+  </v-col>
   </v-row>
-  </v-main>
 </template>
 
 <script lang = "ts">
@@ -254,10 +251,7 @@ const Auth = namespace("Auth");
           this.information=true;
         },
         (error) => {
-          this.message =
-            (error.response && error.response.data && error.response.data.message) ||
-            error.message ||
-            error.toString();
+          this.message = error.response.data
             this.information=true;
           }
       )

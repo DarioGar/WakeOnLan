@@ -2,10 +2,13 @@
     <nav>
         <v-app-bar class="grey darken-2" flat app>
             <v-app-bar-nav-icon class="grey-text" @click="drawer = !drawer"></v-app-bar-nav-icon>
-            <v-app-bar-title class="text grey--text mx-5">
-                <span class="font-weight-light">wake</span>
-                <span >OnLan</span>
-            </v-app-bar-title>
+            <v-img
+                class="mx-5"
+                position="left"
+                contain
+                height=8.5vh
+                src="../assets/logo.png"
+            ></v-img>
             <v-spacer></v-spacer>
             <v-btn text color="grey" @click="logOut">
                 <span>Sign out</span>

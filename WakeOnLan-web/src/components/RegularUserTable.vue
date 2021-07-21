@@ -3,7 +3,6 @@
   <v-row justify="center" class="mx-5">
     <v-dialog
       v-model="information"
-      width="500"
     >
       <v-card>
         <v-card-title>

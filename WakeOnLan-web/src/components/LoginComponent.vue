@@ -10,7 +10,16 @@
           rounded="lg"
           class="grey lighten-2 my-10"
         >
-          <v-row class="my-5">
+          <v-row justify="center" class="my-5">
+            <v-col>
+              <v-img
+                  class="mx-5"
+                  position="center"
+                  contain
+                  height=20vh
+                  src="../assets/logo.png"
+              ></v-img>
+            </v-col>
             <v-col cols=12 class="px-10">
               <v-text-field class="mt-2"
               v-model="user.username"

@@ -12,4 +12,4 @@ api = Api(version='1.0',
         title = 'Users API',
         description='')
 
-con = psycopg2.connect(dbname=WOL_DB_NAME,user=WOL_USER,password=WOL_PASSWORD)
+con = psycopg2.connect(dbname=WOL_DB_NAME,user=WOL_USER,password=WOL_PASSWORD,host='192.168.1.39')

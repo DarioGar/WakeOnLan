@@ -183,7 +183,7 @@ class UserManagement(Resource):
 		
 		return handle500error(users_ns)
 
-@users_ns.route('/invites/',methods=['POST','OPTIONS'],defaults={'username': None})
+@users_ns.route('/invites/',methods=['POST','OPTIONS'])
 @users_ns.route('/invites/<username>',methods=['OPTIONS','GET','PUT'])
 
 class Invites(Resource):
@@ -211,7 +211,7 @@ class Invites(Resource):
 					if(id[0]!=-1):
 						return make_response(jsonify(id[0],200))
 					else:
-						return make_response(jsonify(-1),409)
+						return make_response(jsonify("User is already in that group"),409)
 				else:
 					raise Exception()
 			except:
