@@ -26,6 +26,11 @@ const routes: Array<RouteConfig> = [
     component: () => import('@/views/Computers.vue')
   },
   {
+    path: '/pc',
+    name: 'My Computers',
+    component: () => import('@/views/MyComputers.vue')
+  },
+  {
     path: '/groups',
     name: 'Groups',
     component: () => import('@/views/Groups.vue')

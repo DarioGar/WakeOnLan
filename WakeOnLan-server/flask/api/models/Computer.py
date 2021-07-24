@@ -69,4 +69,28 @@ class Computer:
         cur.execute(query,(id,))
         computer = cur.fetchone()
         return computer
+
+    @staticmethod
+    def computersOf(username):
+        cur = con.cursor()
+        query = "select id from public.users where username = %s"
+        cur.execute(query,(username,))
+        user = cur.fetchone()
+
+        query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,computers.id from public.computers where owner = %s"
+        cur.execute(query,(user[0],))
+        computer = cur.fetchall()
+        return computer
+
+    @staticmethod
+    def logsFor(mac):
+        cur = con.cursor()
+        query = "select id from public.computers where mac = %s"
+        cur.execute(query,(mac,))
+        user = cur.fetchone()
+
+        query = "select * from public.bootup_log where username = %s"
+        cur.execute(query,(user[0],))
+        computer = cur.fetchall()
+        return computer
         

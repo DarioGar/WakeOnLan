@@ -363,8 +363,6 @@ const Auth = namespace("Auth");
     }
     
     async save () {
-    //Cambiar para que al guardar se inserte en la BBDD
-    //REVISAR
     if(this.editing())
     this.register(this.user).then(
           (data) => {

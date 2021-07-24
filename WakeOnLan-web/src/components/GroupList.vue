@@ -40,79 +40,79 @@
         </v-col>
       </v-row>
       
-          <v-dialog
-            v-model="dialog"
-            max-width="500px"
+      <v-dialog
+        v-model="dialog"
+        max-width="500px"
+      >
+        <template v-if="checkPermissions()" v-slot:activator="{ on, attrs }">
+          <v-btn
+            color="primary"
+            dark
+            class="ma-5"
+            v-bind="attrs"
+            v-on="on"
           >
-            <template v-if="checkPermissions()" v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="primary"
-                dark
-                class="ma-5"
-                v-bind="attrs"
-                v-on="on"
-              >
-                New Group
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="6"
-                    >
-                      <v-text-field
-                        label="Name*"
-                        required
-                        :v-model="group.name"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col 
-                    cols="12"
-                    sm="6"
-                    md="6">
-                      <v-text-field
-                        label="Path*"
-                        required
-                        v-model="group.path"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="4"
-                    >
-                      <v-text-field
-                        label="Department*"
-                        required
-                        v-model="group.department"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="close"
+            New Group
+          </v-btn>
+        </template>
+        <v-card>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col
+                  cols="12"
+                  sm="6"
+                  md="6"
                 >
-                  Cancel
-                </v-btn>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="save"
+                  <v-text-field
+                    label="Name*"
+                    required
+                    :v-model="group.name"
+                  ></v-text-field>
+                </v-col>
+                <v-col 
+                cols="12"
+                sm="6"
+                md="6">
+                  <v-text-field
+                    label="Path*"
+                    required
+                    v-model="group.path"
+                  ></v-text-field>
+                </v-col>
+                <v-col
+                  cols="12"
+                  sm="6"
+                  md="4"
                 >
-                  Save
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+                  <v-text-field
+                    label="Department*"
+                    required
+                    v-model="group.department"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="blue darken-1"
+              text
+              @click="close"
+            >
+              Cancel
+            </v-btn>
+            <v-btn
+              color="blue darken-1"
+              text
+              @click="save"
+            >
+              Save
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <div>{{message}}</div>
      </v-container>
   </div>

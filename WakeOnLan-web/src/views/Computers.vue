@@ -111,6 +111,7 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
                         gpu : element[6],
                         id : element[7],
                         reveal : false,
+                        online : false,
                         selectedPrograms : []
                       }
                       this.computers.push(computer)

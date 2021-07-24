@@ -14,10 +14,9 @@ Table users as U {
 }
 
 Table bootup_log {
-  user_id int [ref: > users.id]
-  computer_id int [ref: > computers.id]
-  status bootup_status
-  booted_at varchar [note: 'When computer was booted']
+  username varchar [ref: > users.username]
+  computer_ip varchar [ref: > computers.ip]
+  booted_at timestamp [note: 'When computer was booted']
 }
 
 Table schedule_bootup {
@@ -76,11 +75,6 @@ Enum os_type {
   linux
   macos
   other
-}
-
-Enum bootup_status {
-  on
-  unknown
 }
 
 Enum use_type{

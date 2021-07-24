@@ -31,15 +31,6 @@ EXCEPTION
 END $$;
 
 DO $$ BEGIN
-CREATE TYPE "bootup_status" AS ENUM (
-  'on',
-  'unknown'
-);
-EXCEPTION
-    WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
 CREATE TYPE "use_type" AS ENUM (
   'iot',
   'datascience',
@@ -74,9 +65,8 @@ CREATE TABLE IF NOT EXISTS "invitations" (
 );
 
 CREATE TABLE IF NOT EXISTS "bootup_log" (
-  "user_id" SERIAL,
-  "computer_id" int,
-  "status" bootup_status,
+  "username" varchar,
+  "computer_ip" int,
   "booted_at" timestamp DEFAULT (now())
 );
 
@@ -91,7 +81,7 @@ CREATE TABLE IF NOT EXISTS "schedule_bootup" (
 
 CREATE TABLE IF NOT EXISTS "computers" (
   "id" SERIAL PRIMARY KEY,
-  "last_person" int,
+  "owner" int,
   "name" varchar,
   "mac" varchar,
   "cpu" varchar,
@@ -131,9 +121,9 @@ CREATE TABLE IF NOT EXISTS "rooms" (
   "expected_use" use_type
 );
 
-ALTER TABLE "bootup_log" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "bootup_log" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
 
-ALTER TABLE "bootup_log" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id");
+ALTER TABLE "bootup_log" ADD FOREIGN KEY ("computer_ip") REFERENCES "computers" ("ip");
 
 ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 

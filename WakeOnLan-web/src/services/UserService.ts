@@ -13,6 +13,7 @@ class UserService {
   updateUserData(username: string, email: string, password: string,role: string,fullname: string,pw : boolean) {
     return axios.put(API_URL + 'users/user',{username,email,password,role,fullname,pw},{ headers: authHeader() });
   }
+  
 }
 
 export default new UserService();
