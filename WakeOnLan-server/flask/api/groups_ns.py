@@ -5,7 +5,7 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 from flask_cors import cross_origin
 from api.v1 import api
-from api.group_arguments import new_group_argument
+from api.group_arguments import new_group_argument, room_argument
 from flask_restx import Resource
 from core import limiter, cache
 from utils import handle400error, handle404error, handle500error
@@ -17,7 +17,7 @@ groups_ns = api.namespace('groups',description='Manages the groups created by us
 
 @groups_ns.route('/members/<groupID>',methods=['OPTIONS','GET'])
 class GroupMembers(Resource):
-	cross_origin()
+	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
 	@api.response(404, 'Data not found')
@@ -44,10 +44,10 @@ class GroupMembers(Resource):
 		except:
 			return handle500error(groups_ns)
 
-@groups_ns.route('/<username>',methods=['OPTIONS','GET'])
+@groups_ns.route('/<username>',methods=['OPTIONS','DELETE','GET','POST'])
 
 class UserGroups(Resource):
-	cross_origin()
+	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
 	@api.response(404, 'Data not found')
@@ -72,10 +72,55 @@ class UserGroups(Resource):
 			handle400error(groups_ns,'Invalid username')		
 		return handle500error(groups_ns)
 
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def delete(self,username):
+		"""
+		Deletes a group
+		"""
+		groupID = username #lazy
+		try:
+			returnValue = Group.delete(groupID)
+			if returnValue:
+				make_response(jsonify("Deleted"),200)	
+		except:
+			handle400error(groups_ns,'Invalid username')		
+		return handle500error(groups_ns)
+
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.expect(room_argument)
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def post(self,username):
+		"""
+		Assigns a room to the group
+		"""
+		args = room_argument.parse_args()
+		room = args['roomID']
+		group = args['groupID']
+		try:
+			returnValue = Group.assign(room,group)
+			if returnValue:
+				make_response(jsonify("Deleted"),200)	
+		except:
+			handle400error(groups_ns,'Invalid username')		
+		return handle500error(groups_ns)
+
 @groups_ns.route('',methods=['OPTIONS','POST'])
 
 class Groups(Resource):
-	cross_origin()
+	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.expect(new_group_argument)
 	@api.response(200, 'OK')
@@ -92,12 +137,16 @@ class Groups(Resource):
 			args = new_group_argument.parse_args()
 			username = args.groupLeader
 			userID = User.fetchByUsername(username)[0]
-			groupName = args.name
+			groupName = args['name']
 			path = args.path
 			department = args.department
 			try:
 				group = Group(userID,groupName,path,department)
-				group.insertNewGroup()
+				returnedValue = group.insertNewGroup(username)
+				if(not returnedValue):
+					return make_response(jsonify("Created"),200)
+				else:
+					return make_response(jsonify("No groups assigned to this user"),409)
 			except:
 				return handle500error(groups_ns)
 		except:

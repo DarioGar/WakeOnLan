@@ -87,12 +87,14 @@ class User:
     @staticmethod
     def delete(username):
         cur = con.cursor()
-        query = "delete from users where username = %s"
-        cur.execute(query,(username,))
-        print("result")
-        con.commit()
-        rows = cur.rowcount
-        return rows
+        try:
+            query = "delete from users where username = %s"
+            cur.execute(query,(username,))
+            con.commit()
+            return 0
+        except:
+            con.rollback()
+            return -1
 
     @staticmethod
     def updateUserDataAndPassword(username,pw,fullname,role,email):
@@ -132,7 +134,7 @@ class User:
     @staticmethod
     def fetchAll():
         cur = con.cursor()
-        query = "select username,email,role,password,full_name from public.users"
+        query = "select username,email,role,password,full_name,id from public.users"
         cur.execute(query)
         rows = cur.fetchall()
         if(rows!=None):

@@ -1,6 +1,6 @@
 <template>
   <v-main>
-  <v-row justify="center" class="mx-5">
+  <v-row justify="center" class="mt-3">
     <v-dialog
       v-model="information"
     >

@@ -25,6 +25,12 @@ class GroupService {
   getWorkGroup(username:string) {
     return axios.get(API_URL + 'groups/'+username, { headers: authHeader() });
   }
+  delGroup(groupID : number){
+    return axios.delete(API_URL + 'groups/' + groupID, { headers: authHeader() });
+  }
+  assignRoom(roomID : number,groupID : number){
+    return axios.post(API_URL + 'groups/+room',{roomID,groupID},{ headers: authHeader() });
+  }
 }
 
 export default new GroupService();

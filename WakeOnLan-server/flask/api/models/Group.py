@@ -1,11 +1,10 @@
 from api.v1 import con
-from api.models.User import User
 
 class Group:
     
     def __init__(self,userId,groupName,path,department):
         self.userID = userId
-        self.name = groupName
+        self.groupName = groupName
         self.path = path
         self.department = department
 
@@ -24,11 +23,53 @@ class Group:
         cur.execute(query,(username,))
         return cur.fetchall()
 
-    def insertNewGroup(self):
+    def insertNewGroup(self,username):
         cur = con.cursor()
-        query = "INSERT INTO public.work_group (user_id,name,path,department) VALUES (%s,%s,%s,%s) RETURNING id"
-        cur.execute(query,(self.userID,self.name,self.path,self.department))
-        con.commit()
-        return cur.fetchone()[0] 
+        try:
+            query = "INSERT INTO public.work_group (user_id,name,path,department) VALUES (%s,%s,%s,%s) RETURNING id"
+            cur.execute(query,(self.userID,self.groupName,self.path,self.department))
+            con.commit()
+            id = cur.fetchone()[0] 
+        except:
+            return -1
+        try:
+            query = "INSERT INTO group_member (user_id,group_id) VALUES (%s,%s)"
+            cur.execute(query,(self.userID,id))
+            con.commit()
+        except:
+            return -1
+        return 0
+    @staticmethod
+    def delete(groupID):
+        cur = con.cursor()
+        try:
+            query = "DELETE FROM work_group where id = %s"
+            cur.execute(query,(groupID,))
+            con.commit()
+            return 0
+        except:
+            con.rollback()
+            return -1
 
-    
+    @staticmethod
+    def assign(roomID,groupID):
+        cur = con.cursor()
+        try:
+            query = "UPDATE rooms SET group_id = %s where id = %s"
+            cur.execute(query,(groupID,roomID))
+            con.commit()
+            return 0
+        except:
+            con.rollback()
+            return -1
+
+    def getRoomForGroup(groupID):
+        cur = con.cursor()
+        try:
+            query = "SELECT FROM rooms WHERE group_id = %s"
+            cur.execute(query,(groupID,))
+            result = cur.fetchone()
+            return result
+        except:
+            return -1
+

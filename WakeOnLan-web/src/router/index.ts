@@ -4,7 +4,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
-  { path: '/', redirect: '/home' },
+  { path: '/', redirect: '/login' },
   {
     path: '/user',
     name: 'Users',
@@ -14,11 +14,6 @@ const routes: Array<RouteConfig> = [
     path: '/login',
     name: 'Login',
     component: () => import('@/views/Login.vue')
-  },
-  {
-    path: '/home',
-    name: 'Home',
-    component: () => import("@/views/Dashboard.vue")
   },
   {
     path: '/computers',
@@ -34,6 +29,11 @@ const routes: Array<RouteConfig> = [
     path: '/groups',
     name: 'Groups',
     component: () => import('@/views/Groups.vue')
+  },
+  {
+    path: '/rooms',
+    name: 'Rooms',
+    component: () => import('@/views/Rooms.vue')
   },
   
 ]

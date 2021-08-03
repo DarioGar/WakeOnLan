@@ -25,7 +25,7 @@ class userSignup(Resource):
 	@api.response(500, 'Unhandled errors')
 	@api.response(400, 'Invalid parameters')
 	@cache.cached(timeout=1, query_string=True)
-	@jwt_required()
+	#@jwt_required()
 	def post(self):
 		"""
 		Creates a user

@@ -15,11 +15,13 @@ export interface Computer {
   reveal : boolean;
   online : boolean;
   selectedPrograms : string[];
+  usersAllowed : {username:string,allowed:boolean}[];
+  
 }
 
 class ComputerService {
   getAvailableComputersForUser(username : any) {
-    return axios.get(API_URL + 'macs/' + username, { headers: authHeader() });
+    return axios.get(API_URL + 'macs/for/' + username, { headers: authHeader() });
   }
 
   getUsersAllowedOn(mac : string){
@@ -34,12 +36,28 @@ class ComputerService {
     return axios.get(API_URL + 'macs/mac/' + username,{headers: authHeader()});
   }
 
+  registerNew(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean,owner : string){
+    return axios.post(API_URL + 'macs/new',{mac,ip,ram,cpu,gpu,os,ssd,owner},{headers: authHeader()});
+  }
+  
+  update(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean){
+    return axios.put(API_URL + 'macs/',{mac,ip,ram,cpu,gpu,os,ssd},{headers: authHeader()});
+  }
+
+  delete(mac: string){
+    return axios.delete(API_URL + 'macs/' + mac,{headers: authHeader()});
+  }
+  
   schedulePowerOn(computerId : number,username : string, days : string[],time : string){
     return axios.post(API_URL + 'schedule',{computerId,username,days,time},{ headers: authHeader() })
   }
 
   tryToPowerComputerOn(mac : string,username : string){
     return axios.post(API_URL + 'macs/power',{username,mac},{ headers: authHeader() })
+  }
+
+  changeAllowance(username : string,allowed : boolean,mac : string){
+    return axios.post(API_URL + 'macs/allowed/' + mac,{username,allowed},{ headers: authHeader() })
   }
 }
 

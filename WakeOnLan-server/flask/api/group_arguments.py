@@ -21,3 +21,15 @@ new_group_argument.add_argument('department',
 							location='json',
 							type=str,
 							required=True)
+
+room_argument = reqparse.RequestParser()
+
+room_argument.add_argument('roomID',
+							location='json',
+							type=str,
+							required=True)
+
+room_argument.add_argument('groupID',
+							location='json',
+							type=str,
+							required=True)

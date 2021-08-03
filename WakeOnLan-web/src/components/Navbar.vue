@@ -11,7 +11,7 @@
             ></v-img>
             <v-spacer></v-spacer>
             <v-btn text color="grey" @click="logOut">
-                <span>Sign out</span>
+                <span>{{loginMessage()}}</span>
                 <v-icon>mdi-account-arrow-right-outline</v-icon>
             </v-btn>
         </v-app-bar>
@@ -42,9 +42,10 @@ export default class NavBar extends Vue {
     loggedInlinks = [
         {icon: 'mdi-login',text: 'Login', route: '/login'},
         {icon: 'mdi-account',text: 'Users', route: '/user'},
-        {icon: 'mdi-laptop',text: 'Computers', route: '/computers'},
+        {icon: 'mdi-power',text: 'Power On', route: '/computers'},
         {icon: 'mdi-desktop-classic',text: 'My Computers', route: '/pc'},
-        {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'}
+        {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'},
+        {icon: 'mdi-home-city',text: 'Rooms', route: '/rooms'}
     ];
     link = [
         {icon: 'mdi-login',text: 'Login', route: '/login'},
@@ -57,9 +58,16 @@ export default class NavBar extends Vue {
     private signOut!: () => void;
 
     getLinks() {
-        if (this.currentUser && this.currentUser.roles) 
+        if (this.currentUser && this.currentUser.roles)
                 return this.loggedInlinks
         return this.link
+    }
+
+    loginMessage(){
+        if (this.currentUser && this.currentUser.roles)
+                return "logout"
+        else
+                return "login"
     }
 
     logOut() {

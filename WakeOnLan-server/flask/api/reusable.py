@@ -3,6 +3,7 @@ import re
 from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 from flask import jsonify
+import os
 
 import bcrypt
 
@@ -43,3 +44,10 @@ def check_password(plain_text_password, hashed_password):
     """
     return bcrypt.checkpw(plain_text_password.encode('utf-8'), hashed_password.encode('utf-8'))
     
+def ping(ip):
+    response = os.system("ping -n 1 " + ip)
+    if response == 0:
+        pingstatus = True
+    else:
+        pingstatus = False
+    return pingstatus

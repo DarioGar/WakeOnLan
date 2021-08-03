@@ -77,7 +77,7 @@ const Auth = namespace("Auth");
 
   created() {
     if (this.isLoggedIn) {
-      this.$router.push("/home" );
+      this.$router.push("/pc" );
     }
   }
 
@@ -85,7 +85,7 @@ const Auth = namespace("Auth");
     if (this.user.username && this.user.password) {
       this.login(this.user).then(
         (data) => {
-          this.$router.push("/home");
+          this.$router.push("/pc");
         },
         (error) => {
           this.message = error;

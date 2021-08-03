@@ -1,10 +1,8 @@
 <template>
-  <div class="about">
-    <v-container class="my-5">
+    <v-container>
       <Invitations/>
       <GroupList/>
     </v-container>
-  </div>
 </template>
 
 

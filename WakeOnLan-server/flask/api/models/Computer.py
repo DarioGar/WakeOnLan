@@ -15,6 +15,64 @@ class Computer:
         self.ssd = ssd
 
     @staticmethod
+    def fetchAll():
+        cur = con.cursor()
+        query = "select * from computers"
+        cur.execute(query,)
+        computers = cur.fetchall()
+        return computers
+
+    @staticmethod
+    def fetchComputersUnassigned():
+        cur = con.cursor()
+        query = "select ip,mac,cpu,ram,ssd,os,gpu,computers.id from computers where room_id IS NULL"
+        cur.execute(query,)
+        computers = cur.fetchall()
+        return computers
+    
+    @staticmethod
+    def insert(mac,ip,ram,cpu,gpu,os,ssd,owner):
+        cur = con.cursor()
+        try:
+            query = "select id from public.users where username = %s"
+            cur.execute(query,(owner,))
+            user = cur.fetchone()
+        except:
+            return -1
+        try:
+            query = "INSERT INTO computers (mac,ip,ram,cpu,gpu,ssd,os,owner) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+            cur.execute(query,(mac,ip,ram,cpu,gpu,ssd,os,user[0]))
+            con.commit()
+            return 0
+        except Exception as e:
+            con.rollback()
+            return -1
+
+    @staticmethod
+    def update(mac,ip,ram,cpu,gpu,os,ssd):
+        cur = con.cursor()    
+        try:
+            query = "UPDATE computers SET (ip,ram,cpu,gpu,ssd,os) = (%s,%s,%s,%s,%s,%s) WHERE mac = %s"
+            cur.execute(query,(ip,ram,cpu,gpu,ssd,os,mac))
+            con.commit()
+            return 0
+        except Exception as e:
+            con.rollback()
+            return -1
+    
+    @staticmethod
+    def delete(mac):
+        cur = con.cursor()
+        try:
+            query = "DELETE FROM computers WHERE mac = %s"
+            cur.execute(query,(mac,))
+            con.commit()
+            return 0
+        except Exception as e:
+            con.rollback()
+            return -1
+
+    @staticmethod
     def fetchComputerFor(username):
         cur = con.cursor()
         computers = []
@@ -56,11 +114,25 @@ class Computer:
         
 
     @staticmethod
-    def powerOn(MAC):
+    def powerOn(MAC,user):
         formattedMAC = MAC.replace('-',':')
         if(checkMAC(formattedMAC)):
-             send_magic_packet(formattedMAC)
+            Computer.registerLog(user,MAC)
+            send_magic_packet(formattedMAC)
         return schedule.CancelJob
+
+    @staticmethod
+    def registerLog(user,mac):
+        cur = con.cursor()
+        query = "select id from public.computers where mac = %s"
+        cur.execute(query,(mac,))
+        id = cur.fetchone()
+        try:
+            query = "INSERT INTO bootup_log (username,computer_ip) VALUES (%s,%s)"
+            cur.execute(query,(user,id))
+            con.commit()
+        except Exception as e:
+            return 0
 
     @staticmethod
     def fetch(id):
@@ -77,7 +149,7 @@ class Computer:
         cur.execute(query,(username,))
         user = cur.fetchone()
 
-        query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,computers.id from public.computers where owner = %s"
+        query = "SELECT ip,mac,cpu,ram,ssd,os,gpu,id from public.computers where owner = %s"
         cur.execute(query,(user[0],))
         computer = cur.fetchall()
         return computer
@@ -89,8 +161,44 @@ class Computer:
         cur.execute(query,(mac,))
         user = cur.fetchone()
 
-        query = "select * from public.bootup_log where username = %s"
+        query = "select * from public.bootup_log where computer_ip = %s"
+        cur.execute(query,(user[0],))
+        computer = cur.fetchall()
+        return computer
+
+    @staticmethod
+    def usersAllowedOn(mac):
+        cur = con.cursor()
+        query = "select id from public.computers where mac = %s"
+        cur.execute(query,(mac,))
+        user = cur.fetchone()
+
+        query = "select user_id from public.permissions where computer_id = %s"
         cur.execute(query,(user[0],))
         computer = cur.fetchall()
         return computer
         
+    @staticmethod
+    def changeAllowed(username,allowed,mac):
+        cur = con.cursor()
+        query = "select id from public.users where username = %s"
+        cur.execute(query,(username,))
+        user = cur.fetchone()
+        query = "select id from public.computers where mac = %s"
+        cur.execute(query,(mac,))
+        computer = cur.fetchone()
+        if(allowed):
+            try:
+                query = "insert into permissions values (%s,%s)"
+                cur.execute(query,(user,computer,))
+                con.commit()
+                result = "allowed"
+            except:
+                con.rollback()
+                result = "allowed"
+        else:
+            query = "delete from permissions where user_id=%s AND computer_id=%s"
+            cur.execute(query,(user[0],computer[0]))
+            con.commit()
+            result = "disallowed"
+        return result

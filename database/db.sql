@@ -121,29 +121,33 @@ CREATE TABLE IF NOT EXISTS "rooms" (
   "expected_use" use_type
 );
 
-ALTER TABLE "bootup_log" ADD FOREIGN KEY ("username") REFERENCES "users" ("username");
+ALTER TABLE "bootup_log" ADD FOREIGN KEY ("username") REFERENCES "users" ("username") ON DELETE CASCADE;
 
-ALTER TABLE "bootup_log" ADD FOREIGN KEY ("computer_ip") REFERENCES "computers" ("ip");
+ALTER TABLE "bootup_log" ADD FOREIGN KEY ("computer_ip") REFERENCES "computers" ("ip") ON DELETE CASCADE;
 
-ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id");
+ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "computers" ADD FOREIGN KEY ("last_person") REFERENCES "users" ("id") ON DELETE SET NULL;
+ALTER TABLE "computers" ADD FOREIGN KEY ("owner") REFERENCES "users" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "computers" ADD FOREIGN KEY ("room_id") REFERENCES "rooms" ("id");
+ALTER TABLE "computers" ADD FOREIGN KEY ("room_id") REFERENCES "rooms" ("id") ON DELETE SET NULL;
 
-ALTER TABLE "programs" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id");
+ALTER TABLE "programs" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "work_group" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "rooms" ADD FOREIGN KEY ("group_id") REFERENCES "work_group" ("id");
+ALTER TABLE "rooms" ADD FOREIGN KEY ("group_id") REFERENCES "work_group" ("id" ON DELETE SET NULL);
 
-ALTER TABLE "invitations" ADD FOREIGN KEY ("sender") REFERENCES "users" ("id");
+ALTER TABLE "invitations" ADD FOREIGN KEY ("sender") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "invitations" ADD FOREIGN KEY ("receiver") REFERENCES "users" ("id");
+ALTER TABLE "invitations" ADD FOREIGN KEY ("receiver") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "invitations" ADD FOREIGN KEY ("work_group") REFERENCES "work_group" ("id");
+ALTER TABLE "invitations" ADD FOREIGN KEY ("work_group") REFERENCES "work_group" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "permissions" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+
+ALTER TABLE "permissions" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id") ON DELETE CASCADE;
 
 COMMENT ON COLUMN "bootup_log"."booted_at" IS 'When computer was booted';
 

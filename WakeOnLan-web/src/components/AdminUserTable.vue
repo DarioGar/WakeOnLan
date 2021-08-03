@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="mx-5 mt-3">
+  <v-row justify="center" class="mt-3">
     <v-col cols="8">
     <v-dialog
       v-model="information"
@@ -60,7 +60,7 @@
                         label="Username*"
                         required
                         v-model="user.username"
-                        :disabled="editing()"
+                        :disabled="!editing()"
                       ></v-text-field>
                     </v-col>
                     <v-col 

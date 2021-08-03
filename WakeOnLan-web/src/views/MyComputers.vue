@@ -1,46 +1,63 @@
 <template>
   <v-row justify="center">
+  
     <v-col cols="10">
-    <span>{{message}}</span>
+      <v-col cols="12">
+        <ComputerDialog class="mx-5 mt-5" :edit="editComputer" :dialog="computerDialog" v-on:emit-dialog="dialog = false"/>
+      </v-col>
     <v-card elevation="10" class=" ma-5 pa-5" v-for="computer in computersOwned" :key="computer.mac">
       <v-row>
         <v-col cols="1">
-          <v-icon :color="`${computer.online}`">mdi-circle-slice-8</v-icon>
+          <v-icon :color="getColor(computer.online)">mdi-circle-slice-8</v-icon>
         </v-col>
         <v-col cols="5" md="5">
           <div class="text-uppercase">MAC : {{computer.mac}}</div>
           <div class="text-uppercase">IP : {{computer.ip}}</div>
-          <v-list
-          v-for="user in getUsersAllowed(computer)"
-          :key="user.username"
-          dense
-          style="max-height: 200px"
-          class="overflow-y-auto">
-            <v-subheader>Users allowed to power up this computer</v-subheader>
-            <v-list-item
-            >
-              <v-list-item-content>
-                <span v-text="user.username"></span>
-              </v-list-item-content>
-              <v-list-item-content>
-                <v-simple-checkbox
-                v-model="user.allowed"
-                ></v-simple-checkbox>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
+        </v-col>
+        <v-col cols="3">
+          <span class="mt-3">Power Up Record</span>
+        </v-col>
+        <v-col align="end" cols="3">
+          <v-btn class="mr-3" @click="selectedComputer(computer)">
+            <v-icon color="blue-grey">mdi-pencil</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col cols="6">
+          <v-card>
+            <v-list
+            height = "25vh"
+            dense
+            class="overflow-y-auto">
+              <v-subheader>Users allowed to power up this computer</v-subheader>
+              <v-list-item
+              v-for="user in computer.usersAllowed"
+              :key="user.username"
+              >
+                <v-list-item-content >
+                  <span v-text="user.username"></span>
+                </v-list-item-content>
+                <v-list-item-content class = "pl-3">
+                  <v-simple-checkbox
+                  :ripple="false"
+                  @click="changeAllowed(user,computer.mac)"
+                  v-model="user.allowed"
+                  ></v-simple-checkbox>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card>
         </v-col>
         <v-col cols="6" md="6">
           <v-data-table
           height = "25vh"
+          hide-default-footer
           dense
           :headers="headers"
-          :items="getPowerLog(computer)"
+          :items="computer.powerLog"
           class="elevation-1"
         ></v-data-table>
         </v-col>
       </v-row>
-      <v-icon @click="showDetails(computer)">mdi-help-circle</v-icon>
     </v-card>
   </v-col>
   </v-row>
@@ -50,18 +67,25 @@
 import { Component, Vue } from "vue-property-decorator";
 import { namespace } from "vuex-class";
 import ComputerService,{Computer} from "../services/ComputerService";
+import ComputerDialog from '../components/ComputerDialog.vue'
+import ProgramService from "../services/ProgramService"
 const Auth = namespace("Auth");
 
-@Component
+@Component({components:{
+      ComputerDialog
+    }
+})
 export default class PC extends Vue {
 
+  private computerDialog = false
+  private editComputer = {}
   private message = ""
   private headers = [{text: "Username",align: "start",sortable: true, value: 'username'},
                      {text: "Time",align: "start",sortable: true, value: 'time'}]
-  //Variable to store the users who have powered each pc and when
-  private log = [{}]
+
   private computersOwned : Computer[] = []
 
+  private users = []
   @Auth.State("user")
   private currentUser!: any;
 
@@ -71,6 +95,32 @@ export default class PC extends Vue {
       this.$router.push("/login");
     }
     this.getMyComputers()
+  }
+
+  getColor(online: boolean){
+    if(online)
+      return "green"
+    else
+      return "red"
+  }
+
+  selectedComputer(computer : any){
+    this.editComputer = computer
+    this.computerDialog = true
+  }
+
+  changeAllowed(user : {username: string,allowed:boolean},mac : string){
+    ComputerService.changeAllowance(user.username,user.allowed,mac).then(
+      (response) => {
+        this.message = response.data
+      },
+      (error) => {
+        this.message =
+            (error.response && error.response.data && error.response.data.message) ||
+            error.message ||
+            error.toString(); 
+      }
+    )
   }
 
   getMyComputers(){
@@ -88,9 +138,13 @@ export default class PC extends Vue {
             gpu : element[6],
             id : element[7],
             reveal : false,
-            online : false,
-            selectedPrograms : []
+            online : element[8],
+            selectedPrograms : [],
+            usersAllowed : []
           }
+          this.getPrograms(computer)
+          this.getUsersAllowed(computer)
+          this.getPowerLog(computer)
           this.computersOwned.push(computer)
         });
       },
@@ -103,22 +157,34 @@ export default class PC extends Vue {
     )
   }
 
-  showDetails(computer : any){
-    this.message = computer
+  getPrograms(computer : any){
+    ProgramService.getPrograms(computer.mac).then(
+      (response) => {
+        response.data.forEach((element: any) => {
+          computer.selectedPrograms.push(element[2])
+        });
+      },
+      (error) => {
+        this.message =
+          (error.response && error.response.data && error.response.data.message) ||
+          error.message ||
+          error.toString();
+      }
+    );
   }
 
   getPowerLog(computer:any){
-    this.log.length = 0
+    var log : {username: string,time:string}[] = []
     ComputerService.getLogsFor(computer.mac).then(
       (response) => {
         response.data.forEach((element: any) => {
-          var log = {
+          var data = {
             username: element[0],
-            time : element[1]
+            time : element[2]
           }
-          this.log.push(log)
+          log.push(data)
         });
-        return this.log
+        computer.powerLog=log
       },
       (error) => {
         this.message =
@@ -141,7 +207,7 @@ export default class PC extends Vue {
           }
           allowed.push(user)
         });
-        return allowed
+        computer.usersAllowed = allowed
       },
       (error) => {
         this.message =

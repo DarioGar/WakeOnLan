@@ -1,6 +1,7 @@
 <template>
   <div>
-    <v-container class="my-5">
+    {{message}}
+    <v-container>
       <v-row>
         <v-col
           v-for="group in workGroups"
@@ -12,10 +13,24 @@
               class="text-h5"
               v-text="group.name"
             ></v-card-title>
-              <div class="font-weight-normal mx-5">
-                <strong>Departamento: </strong> {{ group.department }}
-                <strong>Ubicación: </strong> {{ group.path }}
-              </div>
+              <v-row>
+                <v-col class="mx-3" cols="5">
+                  <strong>Departamento: </strong> {{ group.department }}
+                  <strong class="ml-2">Ubicación: </strong> {{ group.path }}
+                </v-col>
+                <v-col align="center" cols="6">
+                  <v-btn
+                  color="error"
+                  @click="deleteGroup(group)"
+                >
+                  Delete Group
+                </v-btn>
+                </v-col>
+                <v-col md="3" cols="6">
+                  <v-select item-value return-object @input="assignRoom($event,group)" outlined dense solo class="mx-5" :items="rooms" item-text="name" label="Assign Room"></v-select>
+                </v-col>
+
+              </v-row>
             <v-list two-line>
               <template v-for="(member,n) in groupMembers">
                 <v-list-item
@@ -75,7 +90,7 @@
                 sm="6"
                 md="6">
                   <v-text-field
-                    label="Path*"
+                    label="Address*"
                     required
                     v-model="group.path"
                   ></v-text-field>
@@ -113,7 +128,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <div>{{message}}</div>
      </v-container>
   </div>
 </template>
@@ -122,6 +136,7 @@
 <script lang="ts">
 import {Component,Vue} from "vue-property-decorator";
 import GroupService from "../services/GroupService";
+import RoomService from "../services/RoomService"
 import { namespace } from "vuex-class";
 const Auth = namespace("Auth");
 
@@ -129,6 +144,7 @@ const Auth = namespace("Auth");
 export default class GroupList extends Vue {
   workGroups : any[] = []
   groupMembers : any[] = []
+  rooms : any[] = []
   drawer = null
   dialog = false
   message = ""
@@ -140,6 +156,7 @@ export default class GroupList extends Vue {
 
     mounted() {
       this.getWorkGroup()
+      this.getRooms()
     }
 
     roleColor(role : string){
@@ -147,6 +164,24 @@ export default class GroupList extends Vue {
         return "blue"
       else
         return "grey darken-1"
+    }
+
+    getRooms(){
+      RoomService.getRooms().then(
+        (response) => {
+          response.data.forEach((element : any) => {
+            var room = {
+              id : element[0],
+              name : element[2],
+            }
+            if(!element[1])
+              this.rooms.push(room)
+          });
+        },
+        (error) => {
+          this.message = "No groups yet assigned"
+          }
+      )
     }
     getWorkGroup(){
       this.workGroups.length = 0
@@ -159,7 +194,8 @@ export default class GroupList extends Vue {
               user_id : element[1],
               name : element[2],
               path : element[3],
-              department : element[4]
+              department : element[4],
+              room : ""
             }
             this.getGroupMembers(element[0])
             this.workGroups.push(work_group)
@@ -223,6 +259,32 @@ export default class GroupList extends Vue {
           }
       )
     this.close()
+    }
+    deleteGroup(group : any){
+      GroupService.delGroup(group.id).then(
+        (response) => {
+          this.message = response.data
+        },
+        (error) => {
+          this.message =
+            (error.response && error.response.data && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          }
+      )
+    }
+    assignRoom(e,group){
+      GroupService.assignRoom(e.id,group.id).then(
+        (response) => {
+          this.message = response.data
+        },
+        (error) => {
+          this.message =
+            (error.response && error.response.data && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          }
+      )
     }
 
 }

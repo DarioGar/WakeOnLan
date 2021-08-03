@@ -53,19 +53,19 @@ class SchedulePowerUp(Resource):
 				print(day)
 				print(schedule.get_jobs())
 				if day.lower() == "monday":
-					schedule.every().monday.at(time).do(Computer.powerOn,computer[2])
+					schedule.every().monday.at(time).do(Computer.powerOn,computer[2],user)
 				elif day.lower() == "tuesday":
-					schedule.every().tuesday.at(time).do(Computer.powerOn,computer[2])
+					schedule.every().tuesday.at(time).do(Computer.powerOn,computer[2],user)
 				elif day.lower() == "wednesday":
-					schedule.every().wednesday.at(time).do(Computer.powerOn,computer[2])
+					schedule.every().wednesday.at(time).do(Computer.powerOn,computer[2],user)
 				elif day.lower() == "thursday":
-					schedule.every().thursday.at(time).do(Computer.powerOn,computer[2])
+					schedule.every().thursday.at(time).do(Computer.powerOn,computer[2],user)
 				elif day.lower() == "friday":
-					schedule.every().friday.at(time).do(Computer.powerOn,computer[2])
+					schedule.every().friday.at(time).do(Computer.powerOn,computer[2],user)
 				elif day.lower() == "saturday":
-					schedule.every().saturday.at(time).do(Computer.powerOn,computer[2])
+					schedule.every().saturday.at(time).do(Computer.powerOn,computer[2],user)
 				elif day.lower() == "sunday":
-					schedule.every().sunday.at(time).do(Computer.powerOn,computer[2])
+					schedule.every().sunday.at(time).do(Computer.powerOn,computer[2],user)
 		except:
 			handle500error(schedules_ns)
 		response = jsonify(result)

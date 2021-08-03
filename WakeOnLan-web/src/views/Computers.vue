@@ -4,13 +4,16 @@
       Select programs to launch, time and days to power up the computer and hit the power button or, alternatively just hit the power button to turn the computer on now
     </span>
     <span class="red--text">{{message}}</span>
+    
     <v-row class="my-5">
+      <v-col cols="12">
+        <ComputerDialog class="mx-1 mt-5" :dialog="computerDialog"/>
+      </v-col>
       <v-col class="my-2"
         v-for="(computer,i) in computers"
         :key="i"
         cols="4" sm="4" md="3" xl=3
       >
-      <!--Añadir Si alguien ya lo ha arrancado aparezca disabled-->
         <v-card >
           <v-row>
             <v-col cols="1" sm="2" md="2" xl="3">
@@ -27,7 +30,7 @@
             </v-btn>
             <v-spacer></v-spacer>
             <v-btn @click="powerComputer(computer)">
-              <v-icon color="green">
+              <v-icon :color="getColor(computer.online)">
                 mdi-power
               </v-icon>
             </v-btn>
@@ -53,20 +56,24 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import { namespace } from "vuex-class";
 import vuetify from "vuetify"
 import ComputerService,{Computer} from "../services/ComputerService";
+import ProgramService from "../services/ProgramService";
 const Auth = namespace("Auth");
 import ProgramPicker from '../components/ProgramPicker.vue'
 import PowerOnComponent from '../components/PowerOnComponent.vue'
+import ComputerDialog from '../components/ComputerDialog.vue'
 
 
 @Component({components:{
       ProgramPicker,
-      PowerOnComponent
+      PowerOnComponent,
+      ComputerDialog
     }
 })
   export default class Computers extends Vue{
     private computers : Computer[] = []
     private message = ""
     private timeMap = new Map()
+    private computerDialog = false
 
     @Auth.Getter
     private isLoggedIn!: boolean;
@@ -93,6 +100,12 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
       this.getComputers()
     }
 
+  getColor(online: boolean){
+    if(online)
+      return "green"
+    else
+      return "red"
+  }
     getComputers(){
       this.computers.length = 0
       if (this.currentUser && this.currentUser.roles) {
@@ -111,8 +124,9 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
                         gpu : element[6],
                         id : element[7],
                         reveal : false,
-                        online : false,
-                        selectedPrograms : []
+                        online : element[8],
+                        selectedPrograms : [],
+                        usersAllowed : []
                       }
                       this.computers.push(computer)
                     });
@@ -134,7 +148,21 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
     }
 
     powerComputer(computer : Computer){
+
       if (this.currentUser && this.currentUser.roles) {
+        if(computer.selectedPrograms.length>0){
+          ProgramService.addProgramForNextPowerUp(computer.selectedPrograms,computer.mac).then(
+            (response) => {
+              this.message = response.data
+            },
+            (error) => {
+              this.message =
+                (error.response && error.response.data && error.response.data.message) ||
+                error.message ||
+                error.toString();
+            }
+          );
+        }
         var computerId = computer.id;
         var username = this.currentUser.username
         try {
@@ -144,7 +172,6 @@ import PowerOnComponent from '../components/PowerOnComponent.vue'
           this.message = error
         }
         if(days && time){
-
           ComputerService.schedulePowerOn(computerId,username,days,time).then(
             (response) => {
               this.message = response.data
