@@ -6,7 +6,7 @@
                 class="mx-5"
                 position="left"
                 contain
-                height=8.5vh
+                height=6vh
                 src="../assets/logo.png"
             ></v-img>
             <v-spacer></v-spacer>
@@ -45,7 +45,8 @@ export default class NavBar extends Vue {
         {icon: 'mdi-power',text: 'Power On', route: '/computers'},
         {icon: 'mdi-desktop-classic',text: 'My Computers', route: '/pc'},
         {icon: 'mdi-account-multiple',text: 'My Groups', route: '/groups'},
-        {icon: 'mdi-home-city',text: 'Rooms', route: '/rooms'}
+        {icon: 'mdi-home-city',text: 'Rooms', route: '/rooms'},
+        {icon: 'mdi-chart-areaspline',text: 'Charts', route: '/charts'}
     ];
     link = [
         {icon: 'mdi-login',text: 'Login', route: '/login'},

@@ -63,13 +63,42 @@ class Group:
             con.rollback()
             return -1
 
+    @staticmethod
+    def deassign(groupID):
+        cur = con.cursor()
+       # try:
+        query = "UPDATE rooms SET group_id = NULL where group_id = %s"
+        cur.execute(query,(groupID,))
+        con.commit()
+        return 0
+     #   except:
+     #       con.rollback()
+     #       return -1
+
     def getRoomForGroup(groupID):
         cur = con.cursor()
         try:
-            query = "SELECT FROM rooms WHERE group_id = %s"
+            query = "SELECT location FROM rooms WHERE group_id = %s"
             cur.execute(query,(groupID,))
             result = cur.fetchone()
-            return result
+            return result[0]
+        except:
+            return 0
+
+    @staticmethod
+    def removeMemberFrom(username,groupID):
+        cur = con.cursor()
+        try:
+            query = "SELECT id FROM users WHERE username = %s"
+            cur.execute(query,(username,))
+            result = cur.fetchone()
         except:
             return -1
-
+        try:
+            query = "DELETE FROM group_member where group_id = %s AND user_id = %s"
+            cur.execute(query,(groupID,result[0]))
+            con.commit()
+            return 0
+        except:
+            con.rollback()
+            return -1

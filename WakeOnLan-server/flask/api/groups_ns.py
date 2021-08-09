@@ -44,6 +44,32 @@ class GroupMembers(Resource):
 		except:
 			return handle500error(groups_ns)
 
+@groups_ns.route('/members/<groupID>/<username>',methods=['OPTIONS','DELETE'])
+class GroupMembers(Resource):
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def delete(self,groupID,username):
+		"""
+		Deletes a member of a given groups
+		"""
+		try:
+			if groupID is not None:
+				returnValue = Group.removeMemberFrom(username,groupID)
+				if not returnValue:
+					return make_response(jsonify("Deleted"),200)
+				else:
+					return make_response(jsonify("Something went wrong"),500)
+			else:
+				raise Exception()
+		except:
+			return handle500error(groups_ns)
+
 @groups_ns.route('/<username>',methods=['OPTIONS','DELETE','GET','POST'])
 
 class UserGroups(Resource):
@@ -88,7 +114,7 @@ class UserGroups(Resource):
 		try:
 			returnValue = Group.delete(groupID)
 			if returnValue:
-				make_response(jsonify("Deleted"),200)	
+				return make_response(jsonify("Deleted"),200)	
 		except:
 			handle400error(groups_ns,'Invalid username')		
 		return handle500error(groups_ns)
@@ -111,10 +137,10 @@ class UserGroups(Resource):
 		group = args['groupID']
 		try:
 			returnValue = Group.assign(room,group)
-			if returnValue:
-				make_response(jsonify("Deleted"),200)	
+			if not returnValue:
+				return make_response(jsonify("Assigned"),200)	
 		except:
-			handle400error(groups_ns,'Invalid username')		
+			handle400error(groups_ns,'Invalid data')		
 		return handle500error(groups_ns)
 
 @groups_ns.route('',methods=['OPTIONS','POST'])
@@ -151,3 +177,47 @@ class Groups(Resource):
 				return handle500error(groups_ns)
 		except:
 			return handle500error(groups_ns)
+
+@groups_ns.route('/room/<group>',methods=['OPTIONS','GET','PUT'])
+
+class Groups(Resource):
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def get(self,group):
+		"""
+		Gets the room for the group given
+		"""
+		try:
+			returnValue = Group.getRoomForGroup(group)
+			if returnValue:
+				return make_response(jsonify(returnValue),200)
+			else:
+				return make_response(jsonify(None),409)
+		except:
+			return handle500error(groups_ns)
+
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	def put(self,group):
+		"""
+		Deassigns a room
+		"""
+		groupID = group
+		try:
+			returnValue = Group.deassign(group)
+			if not returnValue:
+				return make_response(jsonify("Deassigned"),200)	
+		except:
+			handle400error(groups_ns,'Invalid data')		
+		return handle500error(groups_ns)

@@ -25,7 +25,13 @@ class Program:
         computer = cur.fetchone()
         cur = con.cursor()
         try:
-            query = "INSERT INTO programs (name,path,computer_id) VALUES (%s,%s,%s)"
+            query = "DELETE FROM programs where computer_id = %s"
+            cur.execute(query,(computer,))
+            con.commit()
+        except:
+            return -1
+        try:
+            query = "INSERT INTO programs (name,path,computer_id) VALUES (%s,%s,%s) ON CONFLICT DO NOTHING"
             cur.execute(query,(program.name,program.path,computer))
             con.commit()
             return 0

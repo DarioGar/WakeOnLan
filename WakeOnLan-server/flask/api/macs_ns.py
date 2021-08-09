@@ -22,14 +22,20 @@ macs_ns = api.namespace('macs',description='Manages MACS for the users',decorato
 def computersOnline():
 	while(True):
 		online.clear()
+		print(timeOnline)
 		for computer in Computer.fetchAll():
-			if (ping(computer[9])):
+			if (ping(computer[6])):
 				online.append(computer[0])
+				if computer[2] in timeOnline:
+					timeOnline[computer[2]] +=2
+				else:
+					timeOnline[computer[2]] = 0
 		time.sleep(120)
 
 
 programData = {}
 online = []
+timeOnline = {}
 job_thread = threading.Thread(target=computersOnline)
 job_thread.start()
 
@@ -59,7 +65,8 @@ class Computers(Resource):
 			os = args['os']
 			ssd = args['ssd']
 			owner = args['owner']
-			responseData = Computer.insert(computer,ip,ram,cpu,gpu,os,ssd,owner)
+			name = args['name']
+			responseData = Computer.insert(computer,ip,ram,cpu,gpu,os,ssd,owner,name)
 			if(not responseData):
 				response = jsonify("Succesfully inserted")
 				return make_response(response,200)
@@ -91,7 +98,8 @@ class Computers(Resource):
 			gpu = args['gpu']
 			os = args['os']
 			ssd = args['ssd']
-			responseData = Computer.update(computer,ip,ram,cpu,gpu,os,ssd)
+			name = args['name']
+			responseData = Computer.update(computer,ip,ram,cpu,gpu,os,ssd,name)
 			if(not responseData):
 				response = jsonify("Succesfully updated")
 				return make_response(response,200)
@@ -122,6 +130,76 @@ class Computers(Resource):
 			else:
 				response = jsonify("Couldn't delete")
 				return make_response(response,404)
+		except:
+			handle500error(macs_ns)
+
+@macs_ns.route('/days/',methods=['GET','OPTIONS'])
+class Days(Resource):
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def get(self):
+		"""
+		Returns the computers powered on each day of the week
+		"""
+		try:
+			responseData = Computer.poweredEachDay()
+			daysArray = [0,0,0,0,0,0,0]
+			for data in responseData:
+				daysArray[int(data[0])-1] = data[1]
+			print(daysArray)
+			response = jsonify(daysArray)
+			return make_response(response,200)
+		except:
+			handle500error(macs_ns)
+
+@macs_ns.route('/online/',methods=['GET','OPTIONS'])
+class Days(Resource):
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def get(self):
+		"""
+		Returns the computers that are online and the time they've been running
+		"""
+		try:
+			response = []
+			for key, value in timeOnline.items():
+				temp = [key,value]
+				response.append(temp)
+			returnValue = jsonify(response)
+			return make_response(returnValue,200)
+		except:
+			handle500error(macs_ns)
+
+@macs_ns.route('/users/',methods=['GET','OPTIONS'])
+class Days(Resource):
+	@cross_origin()
+	@limiter.limit('1000/hour')
+	@api.response(200, 'OK')
+	@api.response(404, 'Data not found')
+	@api.response(500, 'Unhandled errors')
+	@api.response(400, 'Invalid parameters')
+	@cache.cached(timeout=1, query_string=True)
+	@jwt_required()
+	def get(self):
+		"""
+		Returns the computers that are online and the time they've been running
+		"""
+		try:
+			response = Computer.activeUsers()
+			returnValue = jsonify(response)
+			return make_response(returnValue,200)
 		except:
 			handle500error(macs_ns)
 
@@ -335,7 +413,7 @@ class Programs(Resource):
 		except:
 			handle500error(macs_ns)
 
-@macs_ns.route('/programs/launch/<mac>',methods=['POST','OPTIONS'])
+@macs_ns.route('/programs/launch/<mac>',methods=['GET','POST','OPTIONS'])
 
 class ProgramsToLaunch(Resource):
 	@cross_origin()
@@ -346,8 +424,8 @@ class ProgramsToLaunch(Resource):
 	@api.response(500, 'Unhandled errors')
 	@api.response(400, 'Invalid parameters')
 	@cache.cached(timeout=1, query_string=True)
-	@jwt_required()
-	def post(self):
+
+	def post(self,mac):
 		"""
 		Sets the programs to be launched on power up
 		"""
@@ -358,7 +436,7 @@ class ProgramsToLaunch(Resource):
 			programData[mac]=[]
 			for program in programs:
 				programData[mac].append(program)
-			returnValue = jsonify("Programs set launch" +programData[mac])
+			returnValue = jsonify("Programs set launch" + str(programData[mac]))
 			return make_response(returnValue,200)
 		except:
 			handle500error(macs_ns)
@@ -375,7 +453,9 @@ class ProgramsToLaunch(Resource):
 		Gets the programs to be launched on power up
 		"""
 		try:
-			returnValue = jsonify(programData[mac])
+			returnValue = jsonify(programData)
+			if mac in programData:
+				returnValue = jsonify(programData[mac])
 			return make_response(returnValue,200)
 		except:
 			handle500error(macs_ns)

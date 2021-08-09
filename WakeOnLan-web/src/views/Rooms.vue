@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <v-container class="my-5">
+  <v-row justify="center" class="mt-3">
+    <v-col cols="8">
       <v-row>
         <v-col
           v-for="room in rooms"
@@ -29,10 +29,13 @@
               <v-row class = "mx-3" align="center">
                 <v-col cols="5">
                   <v-select
-                  v-model="computersToRemove"
+                  v-model="room.computersToRemove"
                   :items="room.computers"
+                  item-value
+                  return-object
+                  item-text="name"
                   label="Computers in room"
-                  @change="event($event)"
+                  @change="event($event,room)"
                   multiple
                 >
                 </v-select>
@@ -48,8 +51,11 @@
                 </v-col>
                 <v-col cols="5">
                   <v-select
-                  v-model="computersToAssign"
+                  v-model="room.computersToAssign"
                   :items="computersAvailable"
+                  item-value
+                  return-object
+                  item-text="name"
                   label="Computers not assigned to any room"
                   multiple
                 >
@@ -134,8 +140,8 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-     </v-container>
-  </div>
+      </v-col>
+    </v-row>
 </template>
 
 <script lang = "ts">
@@ -152,35 +158,31 @@ export default class Rooms extends Vue {
     private message = {}
     private dialog = false
     private computersAvailable = [{}]
-    private computersToRemove = [{}]
-    private computersToAssign = [{}]
     private room = {location : "",capacity : 0,use : ""}
 
     @Auth.State("user")
     private currentUser!: any;
 
     mounted() {
-      this.computersToRemove.pop()
       this.computersAvailable.pop()
-      this.computersToAssign.pop()
       this.getRooms()
       this.getComputersWithoutRoom()
     }
-    event(e : any){
-      this.computersToRemove = e
+    event(e : any,room : any){
+      room.computersToRemove = e
     }
 
     swap(room : any){
-      this.computersToAssign.forEach((computer,index) => {
+      room.computersToAssign.forEach((computer : any,index : any) => {
         room.computers.push(computer)
       })
-      this.computersAvailable = this.computersAvailable.filter(x => !this.computersToAssign.includes(x))
-      this.computersToRemove.forEach((computer,index) => {
+      this.computersAvailable = this.computersAvailable.filter(x => !room.computersToAssign.includes(x))
+      room.computersToRemove.forEach((computer : any,index : any) => {
         this.computersAvailable.push(computer)
       })
-      room.computers = room.computers.filter((x : any) => !this.computersToRemove.includes(x))
-      this.computersToAssign = []
-      this.computersToRemove = []
+      room.computers = room.computers.filter((x : any) => !room.computersToRemove.includes(x))
+      room.computersToAssign = []
+      room.computersToRemove = []
       
       RoomService.SetComputers(room.id,room.computers).then(
         (response) => {
@@ -214,7 +216,9 @@ export default class Rooms extends Vue {
                   location : element[2],
                   capacity : element[3],
                   use : element[4],
-                  computers : []
+                  computers : [],
+                  computersToAssign : [],
+                  computersToRemove : []
             }
             this.getComputersInRoom(room)
             this.rooms.push(room)
@@ -244,11 +248,12 @@ export default class Rooms extends Vue {
                         gpu : element[6],
                         id : element[7],
                         reveal : false,
-                        online : element[8],
+                        name : element[8],
+                        online : element[9],
                         selectedPrograms : [],
                         usersAllowed : []
                       }
-            room.computers.push(computer.mac)
+            room.computers.push(computer)
           });
         },
         (error) => {
@@ -274,11 +279,12 @@ export default class Rooms extends Vue {
                         gpu : element[6],
                         id : element[7],
                         reveal : false,
-                        online : element[8],
+                        name : element[8],
+                        online : element[9],
                         selectedPrograms : [],
                         usersAllowed : []
                       }
-            this.computersAvailable.push(computer.mac)
+            this.computersAvailable.push(computer)
           });
         },
         (error) => {
@@ -292,21 +298,6 @@ export default class Rooms extends Vue {
 
     save(){
       RoomService.newRoom(this.room.location,this.room.capacity,this.room.use).then(
-        (response) => {
-          this.message = response.data
-        },
-        (error) => {
-          this.message =
-            (error.response && error.response.data && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          }
-      )
-      this.dialog = false
-    }
-
-    delRoom(roomID : number){
-      RoomService.delRoom(roomID).then(
         (response) => {
           this.message = response.data
         },
@@ -336,6 +327,7 @@ export default class Rooms extends Vue {
             error.toString();
           }
       )
+      window.location.reload()
     }
 }
 </script>

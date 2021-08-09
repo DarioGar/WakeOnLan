@@ -319,7 +319,6 @@ const Auth = namespace("Auth");
     }
 
     deleteItemConfirm () {
-    //Eliminar de la base de datos
     this.users.splice(this.editedIndex, 1)
     this.deleteUser(this.user.username)
     this.closeDelete()

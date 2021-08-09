@@ -29,8 +29,18 @@ class GroupService {
     return axios.delete(API_URL + 'groups/' + groupID, { headers: authHeader() });
   }
   assignRoom(roomID : number,groupID : number){
-    return axios.post(API_URL + 'groups/+room',{roomID,groupID},{ headers: authHeader() });
+    return axios.post(API_URL + 'groups/room',{roomID,groupID},{ headers: authHeader() });
   }
+  deassignRoom(groupID : number){
+    return axios.put(API_URL + 'groups/room/'+ groupID, { headers: authHeader() });
+  }
+  getRoom(groupID : number){
+    return axios.get(API_URL + 'groups/room/'+ groupID, { headers: authHeader() });
+  }
+  removeUserFromGroup(username : string,groupID : number){
+    return axios.delete(API_URL + 'groups/members/'+groupID + "/" + username, { headers: authHeader() });
+  }
+
 }
 
 export default new GroupService();

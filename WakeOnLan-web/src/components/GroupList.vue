@@ -27,21 +27,44 @@
                 </v-btn>
                 </v-col>
                 <v-col md="3" cols="6">
-                  <v-select item-value return-object @input="assignRoom($event,group)" outlined dense solo class="mx-5" :items="rooms" item-text="name" label="Assign Room"></v-select>
+                  <v-select :disabled="group.room" item-value return-object @input="assignRoom($event,group)" outlined dense solo class="mx-5" :items="rooms" item-text="name" label="Assign Room"></v-select>
                 </v-col>
-
+                <v-col align="start" md="9" cols="6">
+                    <div>
+                      <v-menu
+                        open-on-hover
+                        offset-y
+                      >
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            :disabled="!group.room"
+                            v-bind="attrs"
+                            v-on="on"
+                          >
+                            Assigned Room : {{group.room}}
+                          </v-btn>
+                        </template>
+                            <v-btn @click="removeRoom(group)">Click to stop using the room</v-btn>
+                      </v-menu>
+                    </div>
+                </v-col>
               </v-row>
             <v-list two-line>
-              <template v-for="(member,n) in groupMembers">
+              <template v-for="(member,n) in group.members">
                 <v-list-item
                   :key="member"
+                  
                 >
                   <v-list-item-avatar :color="roleColor(member.role)">
                   </v-list-item-avatar>
 
                   <v-list-item-content>
                     <v-list-item-title>Miembro: {{ member.name }}</v-list-item-title>
+                    
                   </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn @click="removeUserFromGroup(member.name,group,n)">Remove user</v-btn>
+                  </v-list-item-action>
                 </v-list-item>
 
                 <v-divider
@@ -129,6 +152,7 @@
         </v-card>
       </v-dialog>
      </v-container>
+     {{message2}}
   </div>
 </template>
 
@@ -143,11 +167,11 @@ const Auth = namespace("Auth");
 @Component
 export default class GroupList extends Vue {
   workGroups : any[] = []
-  groupMembers : any[] = []
   rooms : any[] = []
   drawer = null
   dialog = false
   message = ""
+  message2= ""
 
   private group = {name:"",path:"",department:""}
 
@@ -185,7 +209,6 @@ export default class GroupList extends Vue {
     }
     getWorkGroup(){
       this.workGroups.length = 0
-      this.groupMembers.length = 0
       GroupService.getWorkGroup(this.currentUser.username).then(
         (response) => {
           response.data.forEach((element : any) => {
@@ -195,9 +218,11 @@ export default class GroupList extends Vue {
               name : element[2],
               path : element[3],
               department : element[4],
-              room : ""
+              room : "",
+              members : []
             }
-            this.getGroupMembers(element[0])
+            work_group.members = this.getGroupMembers(element[0])
+            this.roomAssigned(work_group)
             this.workGroups.push(work_group)
           });
         },
@@ -208,6 +233,7 @@ export default class GroupList extends Vue {
     }
 
     getGroupMembers(groupID : number){
+      var groupMembers : any[] = []
       GroupService.getGroupMembers(groupID).then(
         (response) => {
           response.data.forEach((element : any) => {
@@ -216,7 +242,7 @@ export default class GroupList extends Vue {
               role : element[1],
               email : element[2]
             }
-            this.groupMembers.push(member)
+            groupMembers.push(member)
           });
         },
         (error) => {
@@ -224,6 +250,23 @@ export default class GroupList extends Vue {
             (error.response && error.response.data && error.response.data.message) ||
             error.message ||
             error.toString();
+          }
+      )
+      return groupMembers
+    }
+
+    roomAssigned(work_group : any){
+      var location = ""
+      GroupService.getRoom(work_group.id).then(
+        (response) => {
+            work_group.room = response.data
+        },
+        (error) => {
+          this.message =
+            (error.response && error.response.data && error.response.data.message) ||
+            error.message ||
+            error.toString();
+            work_group.room = null
           }
       )
     }
@@ -245,8 +288,6 @@ export default class GroupList extends Vue {
     }
 
     async save () {
-    //Cambiar para que al guardar se inserte en la BBDD
-    //REVISAR
       GroupService.insertGroup(this.currentUser.username,this.group.name,this.group.path,this.group.department).then(
         (response) => {
           this.message = response.data
@@ -258,6 +299,7 @@ export default class GroupList extends Vue {
             error.toString();
           }
       )
+      window.location.reload()
     this.close()
     }
     deleteGroup(group : any){
@@ -272,8 +314,9 @@ export default class GroupList extends Vue {
             error.toString();
           }
       )
+      window.location.reload()
     }
-    assignRoom(e,group){
+    assignRoom(e : any,group : any){
       GroupService.assignRoom(e.id,group.id).then(
         (response) => {
           this.message = response.data
@@ -285,7 +328,38 @@ export default class GroupList extends Vue {
             error.toString();
           }
       )
+      window.location.reload()
     }
 
+    removeRoom(group: any){
+      group.room = null
+      GroupService.deassignRoom(group.id).then(
+        (response) => {
+          this.message = response.data
+        },
+        (error) => {
+          this.message =
+            (error.response && error.response.data && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          }
+      )
+      window.location.reload()
+    }
+
+    removeUserFromGroup(username: string,group:any,n : number){
+      group.members.splice(n,1)
+      GroupService.removeUserFromGroup(username,group.id).then(
+        (response) => {
+          this.message = response.data
+        },
+        (error) => {
+          this.message =
+            (error.response && error.response.data && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          }
+      )
+    }
 }
 </script>

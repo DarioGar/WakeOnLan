@@ -1,8 +1,10 @@
 <template>
-    <v-container>
+  <v-row justify="center" class="mt-3">
+    <v-col cols="8">
       <Invitations/>
       <GroupList/>
-    </v-container>
+    </v-col>
+  </v-row>
 </template>
 
 

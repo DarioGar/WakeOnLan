@@ -67,6 +67,11 @@ new_computer_arguments.add_argument('owner',
 							type=str,
 							required=True)
 
+new_computer_arguments.add_argument('name',
+							location='json',
+							type=str,
+							required=True)
+
 update_computer_arguments = reqparse.RequestParser()
 
 update_computer_arguments.add_argument('mac',
@@ -101,6 +106,11 @@ update_computer_arguments.add_argument('os',
 							required=True)
 
 update_computer_arguments.add_argument('ssd',
+							location='json',
+							type=str,
+							required=True)
+
+update_computer_arguments.add_argument('name',
 							location='json',
 							type=str,
 							required=True)

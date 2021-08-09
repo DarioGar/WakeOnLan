@@ -1,4 +1,5 @@
 from api.v1 import con
+import json
 
 class Room:
 
@@ -46,7 +47,7 @@ class Room:
     @staticmethod
     def fetchComputersInRoom(room):
         cur = con.cursor()
-        query = "select ip,mac,cpu,ram,ssd,os,gpu,computers.id from computers where room_id = %s"
+        query = "select ip,mac,cpu,ram,ssd,os,gpu,computers.id,name from computers where room_id = %s"
         cur.execute(query,(room,))
         rooms = cur.fetchall()
         return rooms
@@ -62,9 +63,8 @@ class Room:
             return -1
         try:
             for computer in computers:
-                print(computer)
                 query = "UPDATE computers SET room_id = %s WHERE mac = %s"
-                cur.execute(query,(roomID,computer))
+                cur.execute(query,(roomID,computer['mac']))
                 con.commit()
             return 0
         except:

@@ -5,6 +5,7 @@ const API_URL = process.env.VUE_APP_AUTH_URL;
 
 export interface Computer {
   ip : string;
+  name : string;
   mac : string;
   cpu : string;
   ram : number;
@@ -36,12 +37,12 @@ class ComputerService {
     return axios.get(API_URL + 'macs/mac/' + username,{headers: authHeader()});
   }
 
-  registerNew(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean,owner : string){
-    return axios.post(API_URL + 'macs/new',{mac,ip,ram,cpu,gpu,os,ssd,owner},{headers: authHeader()});
+  registerNew(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean,owner : string,name: string){
+    return axios.post(API_URL + 'macs/new',{mac,ip,ram,cpu,gpu,os,ssd,owner,name},{headers: authHeader()});
   }
   
-  update(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean){
-    return axios.put(API_URL + 'macs/',{mac,ip,ram,cpu,gpu,os,ssd},{headers: authHeader()});
+  update(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean,name: string){
+    return axios.put(API_URL + 'macs/update',{mac,ip,ram,cpu,gpu,os,ssd,name},{headers: authHeader()});
   }
 
   delete(mac: string){
@@ -58,6 +59,15 @@ class ComputerService {
 
   changeAllowance(username : string,allowed : boolean,mac : string){
     return axios.post(API_URL + 'macs/allowed/' + mac,{username,allowed},{ headers: authHeader() })
+  }
+  getDaysData(){
+    return axios.get(API_URL + 'macs/days/',{ headers: authHeader() })
+  }
+  getOnline(){
+    return axios.get(API_URL + 'macs/online/',{ headers: authHeader() })
+  }
+  getActiveData(){
+    return axios.get(API_URL + 'macs/users/',{ headers: authHeader() })
   }
 }
 

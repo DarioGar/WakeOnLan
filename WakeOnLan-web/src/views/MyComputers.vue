@@ -1,10 +1,6 @@
 <template>
-  <v-row justify="center">
-  
-    <v-col cols="10">
-      <v-col cols="12">
-        <ComputerDialog class="mx-5 mt-5" :edit="editComputer" :dialog="computerDialog" v-on:emit-dialog="dialog = false"/>
-      </v-col>
+  <v-row justify="center" class="mt-3">
+    <v-col cols="8">
     <v-card elevation="10" class=" ma-5 pa-5" v-for="computer in computersOwned" :key="computer.mac">
       <v-row>
         <v-col cols="1">
@@ -52,6 +48,7 @@
           height = "25vh"
           hide-default-footer
           dense
+          :items-per-page="-1"
           :headers="headers"
           :items="computer.powerLog"
           class="elevation-1"
@@ -59,6 +56,9 @@
         </v-col>
       </v-row>
     </v-card>
+      <v-col cols="12">
+        <ComputerDialog class="mx-5" :edit="editComputer" :dialog="computerDialog" v-on:emit-dialog="dialog = false"/>
+      </v-col>
   </v-col>
   </v-row>
 </template>
@@ -138,7 +138,8 @@ export default class PC extends Vue {
             gpu : element[6],
             id : element[7],
             reveal : false,
-            online : element[8],
+            name : element[8],
+            online : element[9],
             selectedPrograms : [],
             usersAllowed : []
           }
@@ -180,7 +181,7 @@ export default class PC extends Vue {
         response.data.forEach((element: any) => {
           var data = {
             username: element[0],
-            time : element[2]
+            time : element[1]
           }
           log.push(data)
         });

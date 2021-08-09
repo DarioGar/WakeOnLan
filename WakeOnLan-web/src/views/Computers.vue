@@ -1,54 +1,55 @@
 <template>
-  <v-container>
-    <span>
-      Select programs to launch, time and days to power up the computer and hit the power button or, alternatively just hit the power button to turn the computer on now
-    </span>
-    <span class="red--text">{{message}}</span>
-    
-    <v-row class="my-5">
-      <v-col cols="12">
-        <ComputerDialog class="mx-1 mt-5" :dialog="computerDialog"/>
-      </v-col>
-      <v-col class="my-2"
-        v-for="(computer,i) in computers"
-        :key="i"
-        cols="4" sm="4" md="3" xl=3
-      >
-        <v-card >
-          <v-row>
-            <v-col cols="1" sm="2" md="2" xl="3">
-              <v-icon :class="size()">mdi-desktop-classic</v-icon>
-            </v-col>
-            <v-col>
-              <v-card-title class="text-capitalize">{{computer.os}}</v-card-title>
-              <v-card-text>{{computer.ip}}</v-card-text>
-            </v-col>
-          </v-row>
-          <v-card-actions class="mx-5">
-            <v-btn @click="computer.reveal = !computer.reveal ">
-              More
-            </v-btn>
-            <v-spacer></v-spacer>
-            <v-btn @click="powerComputer(computer)">
-              <v-icon :color="getColor(computer.online)">
-                mdi-power
-              </v-icon>
-            </v-btn>
-          </v-card-actions>
-              <v-expand-transition>
-                <v-card
-                  v-if="computer.reveal"
-                  class="transition-fast-in-fast-out v-card--reveal mt-3"
-                  style="height: 100%;"
-                >
-                <ProgramPicker v-bind ='{computer : computer}' v-on:emit-programs="savePrograms"/>
-                <PowerOnComponent v-bind ='{computer : computer}' v-on:emit-time="saveTime"/>
-                </v-card>
-              </v-expand-transition>
-        </v-card>
-      </v-col>
-    </v-row> 
-  </v-container>
+  <v-row justify="center" class="mt-3">
+    <v-col cols="8">
+      <span>
+        Select programs to launch, time and days to power up the computer and hit the power button or, alternatively just hit the power button to turn the computer on now
+      </span>
+      <span class="red--text">{{message}}</span>
+      <v-row class="my-5">
+        <v-col cols="12">
+          <ComputerDialog class="mx-1" :dialog="computerDialog"/>
+        </v-col>
+        <v-col class="my-2"
+          v-for="(computer,i) in computers"
+          :key="i"
+          cols="4" sm="4" md="3" xl=3
+        >
+          <v-card >
+            <v-row>
+              <v-col cols="1" sm="2" md="2" xl="3">
+                <v-icon :class="size()">mdi-desktop-classic</v-icon>
+              </v-col>
+              <v-col>
+                <v-card-title class="text-capitalize">{{computer.os}}</v-card-title>
+                <v-card-text>{{computer.name}}</v-card-text>
+              </v-col>
+            </v-row>
+            <v-card-actions class="mx-5">
+              <v-btn class="mr-1" @click="computer.reveal = !computer.reveal ">
+                More
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn class="ml-1" @click="powerComputer(computer)">
+                <v-icon :color="getColor(computer.online)">
+                  mdi-power
+                </v-icon>
+              </v-btn>
+            </v-card-actions>
+                <v-expand-transition>
+                  <v-card
+                    v-if="computer.reveal"
+                    class="transition-fast-in-fast-out v-card--reveal mt-3"
+                    style="height: 100%;"
+                  >
+                  <ProgramPicker v-bind ='{computer : computer}' v-on:emit-programs="savePrograms"/>
+                  <PowerOnComponent v-bind ='{computer : computer}' v-on:emit-time="saveTime"/>
+                  </v-card>
+                </v-expand-transition>
+          </v-card>
+        </v-col>
+      </v-row> 
+    </v-col>
+  </v-row>   
 </template>
 
 <script lang = "ts">
@@ -124,7 +125,8 @@ import ComputerDialog from '../components/ComputerDialog.vue'
                         gpu : element[6],
                         id : element[7],
                         reveal : false,
-                        online : element[8],
+                        name : element[8],
+                        online : element[9],
                         selectedPrograms : [],
                         usersAllowed : []
                       }
@@ -141,6 +143,7 @@ import ComputerDialog from '../components/ComputerDialog.vue'
       }
     }
     savePrograms(programs : any){
+      //Needs to be in here, dont delete
       return
     }
     saveTime(values : any){

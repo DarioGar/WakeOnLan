@@ -142,8 +142,12 @@ class ComputersNotAssigned(Resource):
 			args = room_computers_argument.parse_args()
 			roomID = args['roomID']
 			computers = args['computers']
-			Room.setRoomIDFor(computers,roomID)
+			returnValue = Room.setRoomIDFor(computers,roomID)
+			if not returnValue:
+				response = jsonify("Computers assigned")
+				return make_response(response,200)
+			else:
+				raise Exception()
 		except:
 			return handle500error(rooms_ns)
-		response = jsonify("Computers assigned")
-		return make_response(response,200)
+		

@@ -35,6 +35,11 @@ const routes: Array<RouteConfig> = [
     name: 'Rooms',
     component: () => import('@/views/Rooms.vue')
   },
+  {
+    path: '/charts',
+    name: 'Charts',
+    component: () => import('@/views/Charts.vue')
+  },
   
 ]
 

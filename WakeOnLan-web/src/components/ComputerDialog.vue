@@ -1,5 +1,6 @@
 <template>
   <v-row>
+
     <v-dialog
       v-model="dialog"
       persistent
@@ -52,6 +53,14 @@
                   label="RAM"
                   v-model="computer.ram"
                   suffix="GB"
+                ></v-text-field>
+              </v-col>
+              <v-col
+                cols="12"
+              >
+                <v-text-field
+                  label="Name"
+                  v-model="computer.name"
                 ></v-text-field>
               </v-col>
               <v-col
@@ -151,8 +160,8 @@ export default class ComputerDialog extends Vue {
   private editing = false
   private searchString = ""
   private comboText = ""
-  private defaultcomputer = {ip : "",mac : "",cpu : "",ram : 8,ssd : false,os : "Windows",gpu : "",use: "",selectedPrograms: []}
-  private computer = {ip : "",mac : "",cpu : "",ram : 8,ssd : false,os : "Windows",gpu : "",use: "",selectedPrograms: []}
+  private defaultcomputer = {ip : "",name: "",mac : "",cpu : "",ram : 8,ssd : false,os : "Windows",gpu : "",use: "",selectedPrograms: []}
+  private computer = {ip : "",name: "",mac : "",cpu : "",ram : 8,ssd : false,os : "Windows",gpu : "",use: "",selectedPrograms: []}
   @Prop() edit : any
   @Prop() dialog : any
 
@@ -205,7 +214,7 @@ export default class ComputerDialog extends Vue {
 
   save(computer : any){
     if(!this.editing){
-      ComputerService.registerNew(computer.mac,computer.ip,computer.ram,computer.cpu,computer.gpu,computer.os,computer.ssd,this.currentUser.username).then(
+      ComputerService.registerNew(computer.mac,computer.ip,computer.ram,computer.cpu,computer.gpu,computer.os,computer.ssd,this.currentUser.username,computer.name).then(
       (response) => {
         this.message = response.data
       },
@@ -218,7 +227,7 @@ export default class ComputerDialog extends Vue {
     );
     }
     else{
-      ComputerService.update(computer.mac,computer.ip,computer.ram,computer.cpu,computer.gpu,computer.os,computer.ssd).then(
+      ComputerService.update(computer.mac,computer.ip,computer.ram,computer.cpu,computer.gpu,computer.os,computer.ssd,computer.name).then(
       (response) => {
         this.message = response.data
       },
@@ -244,7 +253,6 @@ export default class ComputerDialog extends Vue {
     );
     this.changeAllowed(this.currentUser.username,true,computer.mac)
     this.edit = {}
-    this.editing = false
     window.location.reload()
   }
 
