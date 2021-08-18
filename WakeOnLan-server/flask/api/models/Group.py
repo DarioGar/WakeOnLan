@@ -66,14 +66,14 @@ class Group:
     @staticmethod
     def deassign(groupID):
         cur = con.cursor()
-       # try:
-        query = "UPDATE rooms SET group_id = NULL where group_id = %s"
-        cur.execute(query,(groupID,))
-        con.commit()
-        return 0
-     #   except:
-     #       con.rollback()
-     #       return -1
+        try:
+            query = "UPDATE rooms SET group_id = NULL where group_id = %s"
+            cur.execute(query,(groupID,))
+            con.commit()
+            return 0
+        except:
+            con.rollback()
+            return -1
 
     def getRoomForGroup(groupID):
         cur = con.cursor()

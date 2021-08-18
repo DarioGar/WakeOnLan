@@ -8,7 +8,7 @@ class GroupService {
     return axios.post(API_URL + 'groups',{groupLeader,name,path,department}, { headers: authHeader() });
   }
   getGroupMembers(groupID: number) {
-    return axios.get(API_URL + 'groups/members/'+groupID, { headers: authHeader() });
+    return axios.get(API_URL + 'groups/members/'+groupID +'/' + 'nil', { headers: authHeader() });
   }
   accept(id: number, groupId: number, userId: number) {
     return axios.put(API_URL + 'users/invites/accept',{id,groupId,userId},{ headers: authHeader() })

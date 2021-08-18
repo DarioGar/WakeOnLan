@@ -38,11 +38,30 @@ class ComputerService {
   }
 
   registerNew(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean,owner : string,name: string){
-    return axios.post(API_URL + 'macs/new',{mac,ip,ram,cpu,gpu,os,ssd,owner,name},{headers: authHeader()});
+    return axios.post(API_URL + 'macs/new',{
+      mac,
+      ip,
+      ram,
+      cpu,
+      gpu,
+      os,
+      ssd
+      ,owner
+      ,name
+    },{headers: authHeader()});
   }
   
   update(mac : string,ip : string,ram : number,cpu : string,gpu : string,os : string,ssd : boolean,name: string){
-    return axios.put(API_URL + 'macs/update',{mac,ip,ram,cpu,gpu,os,ssd,name},{headers: authHeader()});
+    return axios.put(API_URL + 'macs/update',{
+      mac,
+      ip,
+      ram,
+      cpu,
+      gpu,
+      os,
+      ssd,
+      name
+    },{headers: authHeader()});
   }
 
   delete(mac: string){
@@ -50,7 +69,12 @@ class ComputerService {
   }
   
   schedulePowerOn(computerId : number,username : string, days : string[],time : string){
-    return axios.post(API_URL + 'schedule',{computerId,username,days,time},{ headers: authHeader() })
+    return axios.post(API_URL + 'schedule',{
+      computerId,
+      username,
+      days,
+      time
+    },{ headers: authHeader() })
   }
 
   tryToPowerComputerOn(mac : string,username : string){

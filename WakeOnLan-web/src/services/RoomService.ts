@@ -17,7 +17,7 @@ class RoomService {
 
     getRooms(){
       return axios.get(API_URL + 'rooms/room/',{ headers: authHeader() });
-      }
+    }
     getComputersInRoom(roomID : number){
       return axios.get(API_URL + 'rooms/room/' + roomID,{ headers: authHeader() });
     }

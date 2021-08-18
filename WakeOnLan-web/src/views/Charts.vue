@@ -10,7 +10,7 @@
     </v-col>
     <v-col cols="3" align="center">
       <h2>Times each user has powered on a computer</h2>
-      <ActiveUsers  :chartData="{}" :options="{}"></ActiveUsers>
+      <ActiveUsersChart  :chartData="{}" :options="{}"></ActiveUsersChart>
     </v-col>
     
   </v-row>
@@ -22,16 +22,14 @@
 <script lang= "ts">
   import DaysChart from "../components/DaysChart.vue"
   import TimeRunningChart from "../components/TimeRunningChart.vue"
-  import ActiveUsers from "../components/ActiveUsers.vue"
+  import ActiveUsersChart from "../components/ActiveUsersChart.vue"
   import { Component, Vue } from "vue-property-decorator";
 
   @Component({components:{
     DaysChart,
     TimeRunningChart,
-    ActiveUsers
+    ActiveUsersChart
   }})
   export default class Charts extends Vue {
-
-  
 }
 </script>

@@ -5,7 +5,7 @@ from flask_restx import cors
 from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies
 from flask_jwt_extended import jwt_required
-from api.user_arguments import user_args_name_arguments, new_user_arguments,invite_user_arguments,manage_invite_user_arguments,update_user_arguments
+from api.arguments.user_arguments import user_args_name_arguments, new_user_arguments,invite_user_arguments,manage_invite_user_arguments,update_user_arguments
 from api.reusable import get_hashed_password
 from api.v1 import api
 from core import limiter, cache
@@ -15,7 +15,7 @@ from api.models.User import User
 users_ns = api.namespace('users',description='Manages user information',decorators=[cors.crossdomain(origin="*")])
 
 @users_ns.route('/signup',methods=['POST','OPTIONS'])
-class userSignup(Resource):
+class UserSignup(Resource):
 
 	@cross_origin()
 	@limiter.limit('1000/hour')
@@ -25,7 +25,7 @@ class userSignup(Resource):
 	@api.response(500, 'Unhandled errors')
 	@api.response(400, 'Invalid parameters')
 	@cache.cached(timeout=1, query_string=True)
-	#@jwt_required()
+	@jwt_required()
 	def post(self):
 		"""
 		Creates a user
@@ -59,7 +59,7 @@ class userSignup(Resource):
 			return handle500error(users_ns)
 
 @users_ns.route('/login',methods=['POST','OPTIONS'])
-class userLogin(Resource):
+class UserLogin(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.expect(user_args_name_arguments)
@@ -97,7 +97,7 @@ class userLogin(Resource):
 		except:
 			return handle500error(users_ns)
 
-@users_ns.route('/user',methods=['GET','PUT','OPTIONS'])
+@users_ns.route('/user/<username>',methods=['GET','PUT','OPTIONS'])
 
 class UserCollection(Resource):
 
@@ -108,7 +108,7 @@ class UserCollection(Resource):
 	@api.response(400, 'Invalid parameters')
 	@cache.cached(timeout=1, query_string=True)
 	@jwt_required()
-	def get(self):
+	def get(self,username):
 		"""
 		Gets all users
 		"""
@@ -132,7 +132,7 @@ class UserCollection(Resource):
 	@api.response(400, 'Invalid parameters')
 	@cache.cached(timeout=1, query_string=True)
 	@jwt_required()
-	def put(self):
+	def put(self,username):
 		"""
 		Updates data and password of a user
 		"""
@@ -156,10 +156,7 @@ class UserCollection(Resource):
 		except:
 			return handle500error(users_ns)
 
-@users_ns.route('/user/<username>',methods=['DELETE','OPTIONS','GET'])
-
-class UserManagement(Resource):
-	cross_origin()
+	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
 	@api.response(404, 'Data not found')
@@ -182,6 +179,7 @@ class UserManagement(Resource):
 			handle400error(users_ns,'Invalid username')
 		
 		return handle500error(users_ns)
+
 
 @users_ns.route('/invites/',methods=['POST','OPTIONS'])
 @users_ns.route('/invites/<username>',methods=['OPTIONS','GET','PUT'])
@@ -219,7 +217,7 @@ class Invites(Resource):
 		except:
 			return handle500error(users_ns)
 
-	cross_origin()
+	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
 	@api.response(404, 'Data not found')
@@ -248,7 +246,7 @@ class Invites(Resource):
 		except:
 			return handle400error(users_ns,'Invalid parameters')
 
-	cross_origin()
+	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.expect(manage_invite_user_arguments)
 	@api.response(200, 'OK')

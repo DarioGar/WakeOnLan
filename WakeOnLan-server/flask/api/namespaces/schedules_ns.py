@@ -5,7 +5,7 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 from flask_cors import cross_origin
 from api.v1 import api
-from api.schedule_arguments import schedule_arguments
+from api.arguments.schedule_arguments import schedule_arguments
 from flask_restx import Resource
 from core import limiter, cache
 from utils import handle400error, handle404error, handle500error

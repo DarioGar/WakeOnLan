@@ -8,11 +8,11 @@ import schedule
 import threading
 from api.v1 import api
 from core import cache, limiter
-from api.users_ns import users_ns
-from api.macs_ns import macs_ns
-from api.schedules_ns import schedules_ns
-from api.groups_ns import groups_ns
-from api.rooms_ns import rooms_ns
+from api.namespaces.users_ns import users_ns
+from api.namespaces.macs_ns import macs_ns
+from api.namespaces.schedules_ns import schedules_ns
+from api.namespaces.groups_ns import groups_ns
+from api.namespaces.rooms_ns import rooms_ns
 
 app = Flask(__name__)
 

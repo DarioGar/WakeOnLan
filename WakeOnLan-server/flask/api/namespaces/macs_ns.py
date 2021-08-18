@@ -12,7 +12,7 @@ from utils import handle400error, handle404error, handle500error
 from api.models.Computer import Computer
 from api.models.Program import Program
 from api.models.User import User
-from api.mac_arguments import program_arguments,mac_arguments,allow_user_arguments,new_computer_arguments,update_computer_arguments
+from api.arguments.mac_arguments import program_arguments,mac_arguments,allow_user_arguments,new_computer_arguments,update_computer_arguments
 import schedule
 import threading
 import time
@@ -134,7 +134,7 @@ class Computers(Resource):
 			handle500error(macs_ns)
 
 @macs_ns.route('/days/',methods=['GET','OPTIONS'])
-class Days(Resource):
+class PoweredEachDay(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
@@ -159,7 +159,7 @@ class Days(Resource):
 			handle500error(macs_ns)
 
 @macs_ns.route('/online/',methods=['GET','OPTIONS'])
-class Days(Resource):
+class Online(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
@@ -183,7 +183,7 @@ class Days(Resource):
 			handle500error(macs_ns)
 
 @macs_ns.route('/users/',methods=['GET','OPTIONS'])
-class Days(Resource):
+class TimeRunning(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')

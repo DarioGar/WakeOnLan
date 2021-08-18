@@ -133,7 +133,7 @@
             <v-btn
               color="blue darken-1"
               text
-              @click="save"
+              @click="saveRoom"
             >
               Save
             </v-btn>
@@ -168,6 +168,7 @@ export default class Rooms extends Vue {
       this.getRooms()
       this.getComputersWithoutRoom()
     }
+    
     event(e : any,room : any){
       room.computersToRemove = e
     }
@@ -296,7 +297,7 @@ export default class Rooms extends Vue {
       )
     }
 
-    save(){
+    saveRoom(){
       RoomService.newRoom(this.room.location,this.room.capacity,this.room.use).then(
         (response) => {
           this.message = response.data

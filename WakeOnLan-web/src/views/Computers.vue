@@ -93,13 +93,13 @@ import ComputerDialog from '../components/ComputerDialog.vue'
       return ""
     }
     
-    mounted() {
-      if (!this.currentUser) {
-        this.$router.push("/login");
-      }
-      this.computers.pop()
-      this.getComputers()
+  mounted() {
+    if (!this.currentUser) {
+      this.$router.push("/login");
     }
+    this.computers.pop()
+    this.getComputers()
+  }
 
   getColor(online: boolean){
     if(online)
@@ -107,6 +107,7 @@ import ComputerDialog from '../components/ComputerDialog.vue'
     else
       return "red"
   }
+
     getComputers(){
       this.computers.length = 0
       if (this.currentUser && this.currentUser.roles) {
@@ -142,16 +143,17 @@ import ComputerDialog from '../components/ComputerDialog.vue'
                 );
       }
     }
+
     savePrograms(programs : any){
       //Needs to be in here, dont delete
       return
     }
+
     saveTime(values : any){
       this.timeMap.set(values.id,{time : values.time,days : values.days})
     }
 
     powerComputer(computer : Computer){
-
       if (this.currentUser && this.currentUser.roles) {
         if(computer.selectedPrograms.length>0){
           ProgramService.addProgramForNextPowerUp(computer.selectedPrograms,computer.mac).then(

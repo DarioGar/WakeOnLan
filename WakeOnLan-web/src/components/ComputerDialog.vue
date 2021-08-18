@@ -135,7 +135,7 @@
           <v-btn
             color="blue darken-1"
             text
-            @click="save(computer)"
+            @click="saveComputer(computer)"
           >
             Save
           </v-btn>
@@ -212,7 +212,7 @@ export default class ComputerDialog extends Vue {
     this.editing = false
   }
 
-  save(computer : any){
+  saveComputer(computer : any){
     if(!this.editing){
       ComputerService.registerNew(computer.mac,computer.ip,computer.ram,computer.cpu,computer.gpu,computer.os,computer.ssd,this.currentUser.username,computer.name).then(
       (response) => {

@@ -44,7 +44,7 @@
                             Assigned Room : {{group.room}}
                           </v-btn>
                         </template>
-                            <v-btn @click="removeRoom(group)">Click to stop using the room</v-btn>
+                            <v-btn @click="deassignRoom(group)">Click to stop using the room</v-btn>
                       </v-menu>
                     </div>
                 </v-col>
@@ -105,7 +105,7 @@
                   <v-text-field
                     label="Name*"
                     required
-                    :v-model="group.name"
+                    v-model="group.name"
                   ></v-text-field>
                 </v-col>
                 <v-col 
@@ -144,7 +144,7 @@
             <v-btn
               color="blue darken-1"
               text
-              @click="save"
+              @click="saveGroup"
             >
               Save
             </v-btn>
@@ -287,7 +287,7 @@ export default class GroupList extends Vue {
     })
     }
 
-    async save () {
+    async saveGroup () {
       GroupService.insertGroup(this.currentUser.username,this.group.name,this.group.path,this.group.department).then(
         (response) => {
           this.message = response.data
@@ -302,6 +302,7 @@ export default class GroupList extends Vue {
       window.location.reload()
     this.close()
     }
+    
     deleteGroup(group : any){
       GroupService.delGroup(group.id).then(
         (response) => {
@@ -331,7 +332,7 @@ export default class GroupList extends Vue {
       window.location.reload()
     }
 
-    removeRoom(group: any){
+    deassignRoom(group: any){
       group.room = null
       GroupService.deassignRoom(group.id).then(
         (response) => {

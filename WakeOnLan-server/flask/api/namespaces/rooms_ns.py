@@ -7,7 +7,7 @@ from flask_cors import cross_origin
 from api.v1 import api
 from api.models.Room import Room
 from api.models.Computer import Computer
-from api.room_arguments import room_computers_argument, new_room_argument
+from api.arguments.room_arguments import room_computers_argument, new_room_argument
 from flask_restx import Resource
 from core import limiter, cache
 from utils import handle400error, handle404error, handle500error

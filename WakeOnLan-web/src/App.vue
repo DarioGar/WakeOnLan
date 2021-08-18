@@ -4,7 +4,6 @@
     <v-main class="grey lighten-2">
       <router-view></router-view>
     </v-main>
-        
   </v-app>
 </template>
 

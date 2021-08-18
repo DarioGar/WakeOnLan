@@ -5,7 +5,7 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 from flask_cors import cross_origin
 from api.v1 import api
-from api.group_arguments import new_group_argument, room_argument
+from api.arguments.group_arguments import new_group_argument, room_argument
 from flask_restx import Resource
 from core import limiter, cache
 from utils import handle400error, handle404error, handle500error
@@ -15,7 +15,7 @@ import time
 
 groups_ns = api.namespace('groups',description='Manages the groups created by users',decorators=[cors.crossdomain(origin="*")])
 
-@groups_ns.route('/members/<groupID>',methods=['OPTIONS','GET'])
+@groups_ns.route('/members/<groupID>/<username>',methods=['OPTIONS','GET','DELETE'])
 class GroupMembers(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
@@ -44,8 +44,6 @@ class GroupMembers(Resource):
 		except:
 			return handle500error(groups_ns)
 
-@groups_ns.route('/members/<groupID>/<username>',methods=['OPTIONS','DELETE'])
-class GroupMembers(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
@@ -72,7 +70,7 @@ class GroupMembers(Resource):
 
 @groups_ns.route('/<username>',methods=['OPTIONS','DELETE','GET','POST'])
 
-class UserGroups(Resource):
+class GroupUsers(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')
@@ -180,7 +178,7 @@ class Groups(Resource):
 
 @groups_ns.route('/room/<group>',methods=['OPTIONS','GET','PUT'])
 
-class Groups(Resource):
+class GroupRooms(Resource):
 	@cross_origin()
 	@limiter.limit('1000/hour')
 	@api.response(200, 'OK')

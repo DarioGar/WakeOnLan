@@ -111,7 +111,6 @@ class Computer:
         work_groups = cur.fetchall()
         if len(work_groups) != 0:
             for group_id in work_groups:
-                    # Necesita cambio URGENTE
                     query = "SELECT DISTINCT rooms.id FROM rooms where group_id = %s"
                     cur.execute(query,(group_id[0],))
                     rooms = cur.fetchall()
