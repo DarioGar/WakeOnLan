@@ -44,8 +44,9 @@ END $$;
 CREATE TABLE IF NOT EXISTS "users" (
   "id" SERIAL PRIMARY KEY,
   "full_name" varchar,
-  "username" varchar,
+  "username" varchar UNIQUE,
   "password" varchar,
+  "email" varchar,
   "role" user_role,
   "created_at" timestamp DEFAULT (now())
 );
@@ -66,7 +67,7 @@ CREATE TABLE IF NOT EXISTS "invitations" (
 
 CREATE TABLE IF NOT EXISTS "bootup_log" (
   "username" varchar,
-  "computer_ip" int,
+  "computer_id" int,
   "booted_at" timestamp DEFAULT (now())
 );
 
@@ -83,10 +84,10 @@ CREATE TABLE IF NOT EXISTS "computers" (
   "id" SERIAL PRIMARY KEY,
   "owner" int,
   "name" varchar,
-  "mac" varchar,
+  "mac" varchar UNIQUE,
   "cpu" varchar,
   "gpu" varchar,
-  "ip" varchar,
+  "ip" varchar UNIQUE,
   "ram" integer DEFAULT 0,
   "ssd" boolean DEFAULT false,
   "os" os_type,
@@ -123,7 +124,7 @@ CREATE TABLE IF NOT EXISTS "rooms" (
 
 ALTER TABLE "bootup_log" ADD FOREIGN KEY ("username") REFERENCES "users" ("username") ON DELETE CASCADE;
 
-ALTER TABLE "bootup_log" ADD FOREIGN KEY ("computer_ip") REFERENCES "computers" ("ip") ON DELETE CASCADE;
+ALTER TABLE "bootup_log" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "schedule_bootup" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
@@ -137,7 +138,7 @@ ALTER TABLE "programs" ADD FOREIGN KEY ("computer_id") REFERENCES "computers" ("
 
 ALTER TABLE "work_group" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "rooms" ADD FOREIGN KEY ("group_id") REFERENCES "work_group" ("id" ON DELETE SET NULL);
+ALTER TABLE "rooms" ADD FOREIGN KEY ("group_id") REFERENCES "work_group" ("id") ON DELETE SET NULL;
 
 ALTER TABLE "invitations" ADD FOREIGN KEY ("sender") REFERENCES "users" ("id") ON DELETE CASCADE;
 
@@ -164,3 +165,6 @@ ALTER TABLE "group_member" ADD CONSTRAINT unique_membership UNIQUE ("group_id","
 
 ALTER TABLE "permissions" DROP CONSTRAINT IF EXISTS unique_permission;
 ALTER TABLE "permissions" ADD CONSTRAINT unique_permission UNIQUE ("computer_id","user_id");
+
+ALTER TABLE "programs" DROP CONSTRAINT IF EXISTS unique_program;
+ALTER TABLE "programs" ADD CONSTRAINT unique_program UNIQUE ("computer_id","name","path");
