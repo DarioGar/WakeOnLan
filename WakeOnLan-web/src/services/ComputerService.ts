@@ -17,7 +17,6 @@ export interface Computer {
   online : boolean;
   selectedPrograms : string[];
   usersAllowed : {username:string,allowed:boolean}[];
-  
 }
 
 class ComputerService {

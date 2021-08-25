@@ -3,6 +3,24 @@ import authHeader from './auth-header';
 
 const API_URL = process.env.VUE_APP_AUTH_URL;
 
+export interface Group {
+  id : number;
+  groupLeader : string;
+  name : string;
+  path : string;
+  department : string;
+  room : string;
+  members : any[]
+}
+
+export interface Invitation {
+  id : number;
+  sender : string;
+  receiver : string;
+  time : string;
+  work_group : string;
+}
+
 class GroupService {
   insertGroup(groupLeader: string, name: string, path: string, department: string) {
     return axios.post(API_URL + 'groups',{groupLeader,name,path,department}, { headers: authHeader() });

@@ -170,7 +170,6 @@ class UserCollection(Resource):
 		"""
 		try:
 			if username is not None and User.exists(username):
-				print(username)
 				result = User.delete(username)
 				return make_response(jsonify("Succesfully deleted" + username),200)
 			else:	

@@ -3,6 +3,15 @@ import authHeader from './auth-header';
 
 const API_URL = process.env.VUE_APP_AUTH_URL;
 
+export interface User {
+  id : number;
+  username : string;
+  email : string;
+  role : string;
+  password : string;
+  fullname : string;
+}
+
 class UserService {
   getUsers() {
     return axios.get(API_URL + 'users/user/new', { headers: authHeader() });
