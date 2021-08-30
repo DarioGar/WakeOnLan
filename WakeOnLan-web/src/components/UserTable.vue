@@ -200,7 +200,11 @@ import GroupService from "../services/GroupService";
 import UserService from "../services/UserService";
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'UserTable'
+})
+// @vuese
+// Handles the users on the system, the funcionality allowed depends on the user's role
   export default class Users extends Vue{
     private dialog =  false
     private dialogDelete = false
@@ -222,14 +226,16 @@ const Auth = namespace("Auth");
     private editedIndex = -1
     private password = ""
     private user = {username:"",email:"",role:"",fullname:"",password:""}
+
     formTitle () : any {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.editedIndex === -1 ? 'New User' : 'Edit User'
     }
 
     @Watch('dialogDelete')
     dialogDeleted (val: any) {
     val || this.closeDelete() 
     }
+
     @Auth.Getter
     private isLoggedIn!: boolean;
 
@@ -239,6 +245,10 @@ const Auth = namespace("Auth");
     @Auth.State("user")
     private currentUser!: any;
 
+  /**
+   * @vuese
+   * Used to check if the current user has the admin role
+   */
   checkAdminRole(){
       if (this.currentUser && this.currentUser.roles) {
         if((this.currentUser.roles.includes("admin"))) {
@@ -247,6 +257,11 @@ const Auth = namespace("Auth");
         else return false
       }
   }
+
+  /**
+   * @vuese
+   * Used to initialize the component
+   */
     mounted() {
       this.users.pop()
       this.getUsers()
@@ -254,6 +269,12 @@ const Auth = namespace("Auth");
       this.getWorkGroup()
     }
 
+  /**
+   * @vuese
+   * Used to send an invitation to a user
+   * @arg The first argument is a string representing the name of the user invited
+   * @arg The second argument is a number representing the group ID the invitation is for
+   */
     sendInvite(to:string,group:number){
       GroupService.sendInvite(this.currentUser.username,to,group,).then(
         (response) => {
@@ -268,6 +289,10 @@ const Auth = namespace("Auth");
       )
     }
 
+  /**
+   * @vuese
+   * Used to get the groups the user is a member of
+   */
     getWorkGroup(){
       this.workGroups.length = 0
       GroupService.getWorkGroup(this.currentUser.username).then(
@@ -292,6 +317,10 @@ const Auth = namespace("Auth");
       )
     }
 
+  /**
+   * @vuese
+   * Used to get the list of users on the system
+   */
     getUsers () {
       this.users.length = 0
       UserService.getUsers().then(
@@ -316,6 +345,11 @@ const Auth = namespace("Auth");
     );
     }
 
+  /**
+   * @vuese
+   * Used to initialize the form with the user selected data so it can be edited
+   * @arg The argument is a user
+   */
     editItem (item : any) {
     this.editedIndex = this.users.indexOf(item)
     this.user = Object.assign({}, item)
@@ -323,19 +357,32 @@ const Auth = namespace("Auth");
     this.dialog = true
     }
 
+  /**
+   * @vuese
+   * Used to open the dialog the confirm deletion
+   * @arg The argument is a user
+   */
     deleteItem (item : any) {
     this.editedIndex = this.users.indexOf(item)
     this.user = Object.assign({}, item)
     this.dialogDelete = true
     }
 
+  /**
+   * @vuese
+   * Used to confirm the deletion of a user
+   */
     deleteItemConfirm () {
     this.users.splice(this.editedIndex, 1)
     this.deleteUser(this.user.username)
     this.closeDelete()
     }
 
-
+  /**
+   * @vuese
+   * Used to delete a user
+   * @arg The argument is a strign representing the user's username
+   */
     deleteUser(username : any){
       UserService.delUser(username).then(
       (response) => {
@@ -352,6 +399,10 @@ const Auth = namespace("Auth");
     );
     }
 
+  /**
+   * @vuese
+   * Used to close the dialog for a new|editing user
+   */
     close () {
     this.dialog = false
     this.$nextTick(() => {
@@ -364,6 +415,10 @@ const Auth = namespace("Auth");
       return this.editedIndex === -1 ? true : false
     }
 
+  /**
+   * @vuese
+   * Used to deny the deletion of a user
+   */
     closeDelete () {
     this.dialogDelete = false
     this.$nextTick(() => {
@@ -372,6 +427,10 @@ const Auth = namespace("Auth");
     })
     }
     
+  /**
+   * @vuese
+   * Used to save a newly created user or to update a current user
+   */
     async saveUser () {
     if(this.editing())
     this.register(this.user).then(

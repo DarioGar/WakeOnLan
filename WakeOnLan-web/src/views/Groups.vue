@@ -18,8 +18,11 @@ const Auth = namespace("Auth");
   components:{
     Invitations,
     GroupList
-  }
+  },
+  name : 'Groups'
 })
+// @vuese
+// View that handles the groups on the system
 export default class Group extends Vue {
   
 

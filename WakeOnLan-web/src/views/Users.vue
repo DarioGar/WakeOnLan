@@ -10,8 +10,11 @@ const Auth = namespace("Auth");
 
 @Component({components:{
       UserTable
-    }
+    },
+    name : 'Users'
 })
+// @vuese
+// View that handles the users
 export default class Users extends Vue{
 
 }

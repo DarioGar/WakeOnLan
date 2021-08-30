@@ -6,7 +6,7 @@
                 class="mx-5"
                 position="left"
                 contain
-                height=6vh
+                height=5vh
                 src="../assets/logo.png"
             ></v-img>
             <v-spacer></v-spacer>
@@ -36,7 +36,11 @@ import { Component, Vue } from "vue-property-decorator";
 import { namespace } from "vuex-class";
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'NavBar'
+})
+// @vuese
+// The navigation top and side bar
 export default class NavBar extends Vue {
     drawer = false;
     loggedInlinks = [
@@ -58,12 +62,20 @@ export default class NavBar extends Vue {
     @Auth.Action
     private signOut!: () => void;
 
+  /**
+   * @vuese
+   * Used to get the data for the navigation side bar
+   */
     getLinks() {
         if (this.currentUser && this.currentUser.roles)
                 return this.loggedInlinks
         return this.link
     }
 
+  /**
+   * @vuese
+   * Used to change the login button text to login or logout
+   */
     loginMessage(){
         if (this.currentUser && this.currentUser.roles)
                 return "logout"

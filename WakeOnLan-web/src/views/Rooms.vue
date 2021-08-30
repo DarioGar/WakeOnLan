@@ -151,7 +151,11 @@ import RoomService,{Room} from "../services/RoomService"
 import {Computer} from "../services/ComputerService"
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name:'Rooms'
+})
+// @vuese
+// View that handles the rooms on the system
 export default class Rooms extends Vue {
 
     private rooms : Room[] = []
@@ -169,10 +173,21 @@ export default class Rooms extends Vue {
       this.getComputersWithoutRoom()
     }
     
+  /**
+   * @vuese
+   * Used to get set the programs that are going to be removed from a room
+   * @arg The first argument is a list of users to computersToRemove
+   * @arg The second argument is the room from which the computers are going to be removed
+ */
     event(e : any,room : any){
       room.computersToRemove = e
     }
 
+  /**
+   * @vuese
+   * Used to swap the computers from the list of computers to be assigned to the room and free the computers from the list of computers to be freed from the roomd
+   * @arg The argument is a the room that will be changed
+ */
     swap(room : any){
       room.computersToAssign.forEach((computer : any,index : any) => {
         room.computers.push(computer)
@@ -198,6 +213,10 @@ export default class Rooms extends Vue {
       )
     }
 
+  /**
+   * @vuese
+   * Used to check the roles of the current user
+   */
     checkPermissions(){
       if (this.currentUser && this.currentUser.roles) {
         if((this.currentUser.roles.includes("admin")) || (this.currentUser.roles.includes("project_manager"))) {
@@ -207,6 +226,10 @@ export default class Rooms extends Vue {
       }
     }
 
+  /**
+   * @vuese
+   * Used to get the rooms on the system
+   */
     getRooms(){
       this.rooms.length = 0
         RoomService.getRooms().then(
@@ -235,6 +258,11 @@ export default class Rooms extends Vue {
       )
     }
 
+  /**
+   * @vuese
+   * Used to get the computers that are in the room
+   * @arg The argument is the room in which the computers are going to be searched
+   */
     getComputersInRoom(room : Room){
       RoomService.getComputersInRoom(room.id).then(
         (response) => {
@@ -266,6 +294,10 @@ export default class Rooms extends Vue {
       )
     }
 
+  /**
+   * @vuese
+   * Used to get the computers that are not yet assigned to any room
+   */
     getComputersWithoutRoom(){
       RoomService.getComputersWithoutRoom().then(
         (response) => {
@@ -297,6 +329,10 @@ export default class Rooms extends Vue {
       )
     }
 
+  /**
+   * @vuese
+   * Used to save a newly created room
+   */
     saveRoom(){
       RoomService.newRoom(this.room.location,this.room.capacity,this.room.use).then(
         (response) => {
@@ -316,6 +352,11 @@ export default class Rooms extends Vue {
       this.dialog = false
     }
 
+  /**
+   * @vuese
+   * Used to delete a room
+   * @arg The argument is the room that will be deleted
+   */
     deleteRoom(room : any){
       RoomService.delRoom(room.id).then(
         (response) => {

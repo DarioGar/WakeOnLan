@@ -29,7 +29,9 @@
     DaysChart,
     TimeRunningChart,
     ActiveUsersChart
-  }})
+  },
+  name: 'Charts'})
+  // @vuese
   export default class Charts extends Vue {
 }
 </script>

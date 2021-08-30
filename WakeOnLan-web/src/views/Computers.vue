@@ -20,11 +20,11 @@
                 <v-icon :class="size()">mdi-desktop-classic</v-icon>
               </v-col>
               <v-col>
-                <v-card-title class="text-capitalize">{{computer.os}}</v-card-title>
+                <v-card-title class="text-capitalize ml-4">{{computer.os}}</v-card-title>
                 <v-card-text>{{computer.name}}</v-card-text>
               </v-col>
             </v-row>
-            <v-card-actions class="mx-5">
+            <v-card-actions class="mx-1">
               <v-btn class="mr-1" @click="computer.reveal = !computer.reveal ">
                 More
               </v-btn>
@@ -38,7 +38,7 @@
                 <v-expand-transition>
                   <v-card
                     v-if="computer.reveal"
-                    class="transition-fast-in-fast-out v-card--reveal mt-3"
+                    class="transition-fast-in-fast-out v-card--reveal"
                     style="height: 100%;"
                   >
                   <ProgramPicker v-bind ='{computer : computer}' v-on:emit-programs="savePrograms"/>
@@ -68,8 +68,10 @@ import ComputerDialog from '../components/ComputerDialog.vue'
       ProgramPicker,
       PowerOnComponent,
       ComputerDialog
-    }
+    },
+    name : 'Computers'
 })
+// @vuese
   export default class Computers extends Vue{
     private computers : Computer[] = []
     private message = ""
@@ -82,6 +84,10 @@ import ComputerDialog from '../components/ComputerDialog.vue'
     @Auth.State("user")
     private currentUser!: any;
 
+  /**
+   * @vuese
+   * Used to control the size of the icons to fit the screen
+   */
     size() {
       switch (this.$vuetify.breakpoint.name) {
         case 'xs': return "display-1"
@@ -101,6 +107,11 @@ import ComputerDialog from '../components/ComputerDialog.vue'
     this.getComputers()
   }
 
+  /**
+   * @vuese
+   * Used to get the color of the computer based on if it is online or not to return a string representing the color
+   * @arg The argument is a boolean representing if it is online or not
+   */
   getColor(online: boolean){
     if(online)
       return "green"
@@ -108,6 +119,10 @@ import ComputerDialog from '../components/ComputerDialog.vue'
       return "red"
   }
 
+  /**
+   * @vuese
+   * Used to get the computers available for the current user
+   */
     getComputers(){
       this.computers.length = 0
       if (this.currentUser && this.currentUser.roles) {
@@ -145,14 +160,25 @@ import ComputerDialog from '../components/ComputerDialog.vue'
     }
 
     savePrograms(programs : any){
-      //Needs to be in here, dont delete
+      //Needs to be in here for some reason, dont delete
       return
     }
 
+  /**
+   * @vuese
+   * Used to temporary store the time and day we want to power a computer
+   * @arg The argument is an object containing the computer that we want to configure and the days and time we want to power it
+   */
     saveTime(values : any){
       this.timeMap.set(values.id,{time : values.time,days : values.days})
     }
 
+  /**
+   * @vuese
+   * Used to send the magic package to try to wake up a computer or to schedule the power up in case we have time and days data,
+   * also we set the programs that need to run when the computers turns on
+   * @arg The argument is a computer
+   */
     powerComputer(computer : Computer){
       if (this.currentUser && this.currentUser.roles) {
         if(computer.selectedPrograms.length>0){

@@ -32,7 +32,12 @@ import { namespace } from "vuex-class";
 import GroupService from "../services/GroupService";
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'Invitations'
+})
+// @vuese
+
+
 export default class Invitations extends Vue{
     private message = ""
     private invitations = [{}]
@@ -51,6 +56,10 @@ export default class Invitations extends Vue{
       this.getInvitations()
     }
 
+  /**
+   * @vuese
+   * Used to get the invitations if there are any for the current user
+   */
     getInvitations(){
       GroupService.getInvitationsFor(this.currentUser.username).then(
         (response) => {
@@ -76,6 +85,12 @@ export default class Invitations extends Vue{
           }
       )
     }
+
+  /**
+   * @vuese
+   * Used to accept an invitation to a group
+   * @arg The argument is an invitation
+   */
     acceptInvitation(inv : any){
       var id = inv.id
       var groupId = inv.work_group
@@ -83,6 +98,12 @@ export default class Invitations extends Vue{
       GroupService.accept(id,groupId,userId)
       this.$router.push('/groups')
     }
+
+  /**
+   * @vuese
+   * Used to refuse an invitation to a group
+   * @arg The argument is an invitation
+   */
     refuseInvitation(inv : any){
       var id = inv[0]
       GroupService.deny(id)
