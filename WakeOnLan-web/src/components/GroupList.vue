@@ -15,7 +15,7 @@
               <v-row>
                 <v-col class="mx-3" cols="5">
                   <strong>Departamento: </strong> {{ group.department }}
-                  <strong class="ml-2">Ubicación: </strong> {{ group.path }}
+                  <strong>   Ubicación: </strong> {{ group.path }}
                 </v-col>
                 <v-col align="center" cols="6">
                   <v-btn

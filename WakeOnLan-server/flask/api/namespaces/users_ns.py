@@ -87,7 +87,7 @@ class UserLogin(Resource):
 			return handle400error(users_ns, 'Invalid username and password combination')
 		try:
 			user = User(data[2],data[3],data[1],data[6])
-			user.setRoles(data[4])
+			user.setRoles(data[5])
 			if data:
 				access_token=create_access_token(identity=user.__dict__)
 				responseData = user.__dict__
@@ -97,7 +97,7 @@ class UserLogin(Resource):
 		except:
 			return handle500error(users_ns)
 
-@users_ns.route('/user/<username>',methods=['GET','PUT','OPTIONS'])
+@users_ns.route('/user/<username>',methods=['GET','PUT','OPTIONS','DELETE'])
 
 class UserCollection(Resource):
 
@@ -208,7 +208,7 @@ class Invites(Resource):
 					if(id[0]!=-1):
 						return make_response(jsonify(id[0],200))
 					else:
-						return make_response(jsonify("User is already in that group"),409)
+						return make_response(jsonify("User has already been invited"),409)
 				else:
 					raise Exception()
 			except:
@@ -228,22 +228,24 @@ class Invites(Resource):
 		"""
 		Gets invitations sent to the user passed as param
 		"""
-		try:
-			if username is not None and User.exists(username):
-				invitations = User.getInvitations(username)
+
+		if username is not None and User.exists(username):
+			invitations = User.getInvitations(username)
+			returnData = [[]]
+			if(len(invitations) == 1):
 				returnData = []
-				if(len(invitations) != 0):
-					for (index,i) in enumerate(invitations):
-						if(i[4] == 'on hold'):
-							returnData.append(list(i))
-							returnData[index][1] = User.fetch(i[1])
-					return make_response(jsonify(returnData),200)
-				else:
-					return make_response(jsonify("None"),404)
+			if(len(invitations) > 1):
+				returnData = [[]]
+			if(len(invitations) != 0):
+				for (index,i) in enumerate(invitations):
+					if(i[4] == 'on hold'):
+						returnData.append(list(i))
+						returnData[index][1] = User.fetch(i[1])
+				return make_response(jsonify(returnData),200)
 			else:
-				raise Exception()
-		except:
-			return handle400error(users_ns,'Invalid parameters')
+				return make_response(jsonify("None"),404)
+
+
 
 	@cross_origin()
 	@limiter.limit('1000/hour')

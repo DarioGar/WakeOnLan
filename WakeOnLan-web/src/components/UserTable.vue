@@ -94,6 +94,7 @@
                         :items="['regular', 'learning', 'project_manager', 'admin']"
                         label="Role*"
                         required
+                        :disabled="!checkAdminRole()"
                         v-model="user.role"
                       ></v-select>
                     </v-col>
@@ -164,7 +165,7 @@
           </v-list>
         </v-menu>
         <v-icon
-          v-if="checkAdminRole()"
+          v-if="checkAdminRoleOrUser(item.username)"
           small
           class="mx-2"
           @click="editItem(item)"
@@ -252,6 +253,15 @@ const Auth = namespace("Auth");
   checkAdminRole(){
       if (this.currentUser && this.currentUser.roles) {
         if((this.currentUser.roles.includes("admin"))) {
+          return true
+        }
+        else return false
+      }
+  }
+
+  checkAdminRoleOrUser(username: string){
+      if (this.currentUser && this.currentUser.roles) {
+        if((this.currentUser.roles.includes("admin")) || this.currentUser.username === username) {
           return true
         }
         else return false
