@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{message}}
     <v-container>
       <v-row>
         <v-col
@@ -16,7 +15,7 @@
               <v-row>
                 <v-col class="mx-3" cols="5">
                   <strong>Departamento: </strong> {{ group.department }}
-                  <strong class="ml-2">Ubicación: </strong> {{ group.path }}
+                  <strong>   Ubicación: </strong> {{ group.path }}
                 </v-col>
                 <v-col align="center" cols="6">
                   <v-btn
@@ -164,32 +163,47 @@ import RoomService from "../services/RoomService"
 import { namespace } from "vuex-class";
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'GroupList'
+})
+// @vuese
 export default class GroupList extends Vue {
-  workGroups : any[] = []
-  rooms : any[] = []
-  drawer = null
-  dialog = false
-  message = ""
-  message2= ""
+
+  private workGroups : any[] = []
+  private rooms : any[] = []
+  private drawer = null
+  private dialog = false
+  private message = ""
+  private message2= ""
 
   private group = {name:"",path:"",department:""}
 
     @Auth.State("user")
     private currentUser!: any;
-
+  /**
+   * @vuese
+   * Used to initialize data
+   */
     mounted() {
       this.getWorkGroup()
       this.getRooms()
     }
 
+  /**
+   * @vuese
+   * Used to get the user color based on their role
+   * @arg The argument is a string value representing the user role
+   */
     roleColor(role : string){
       if (role == "admin" || role == "project_manager")
         return "blue"
       else
         return "grey darken-1"
     }
-
+  /**
+   * @vuese
+   * Used to get the rooms, retrieves all rooms and shows only the ones that are not occupied
+   */
     getRooms(){
       RoomService.getRooms().then(
         (response) => {
@@ -207,6 +221,10 @@ export default class GroupList extends Vue {
           }
       )
     }
+  /**
+   * @vuese
+   * Used to get the user's work groups if any, their members and room assigned
+   */
     getWorkGroup(){
       this.workGroups.length = 0
       GroupService.getWorkGroup(this.currentUser.username).then(
@@ -231,7 +249,11 @@ export default class GroupList extends Vue {
           }
       )
     }
-
+  /**
+   * @vuese
+   * Used to get the members of a given group
+   * @arg The argument is a number indicating the ID of the group
+   */
     getGroupMembers(groupID : number){
       var groupMembers : any[] = []
       GroupService.getGroupMembers(groupID).then(
@@ -255,6 +277,11 @@ export default class GroupList extends Vue {
       return groupMembers
     }
 
+  /**
+   * @vuese
+   * Used to get the room assigned to a given group
+   * @arg The argument is a number presesenting the group ID
+   */
     roomAssigned(work_group : any){
       var location = ""
       GroupService.getRoom(work_group.id).then(
@@ -271,6 +298,10 @@ export default class GroupList extends Vue {
       )
     }
 
+  /**
+   * @vuese
+   * Used to check for the roles of the current user
+   */
     checkPermissions(){
       if (this.currentUser && this.currentUser.roles) {
         if((this.currentUser.roles.includes("admin")) || (this.currentUser.roles.includes("project_manager"))) {
@@ -280,6 +311,10 @@ export default class GroupList extends Vue {
       }
     }
 
+  /**
+   * @vuese
+   * Used to close the "New group" dialog
+   */
     close () {
     this.dialog = false
     this.$nextTick(() => {
@@ -287,6 +322,10 @@ export default class GroupList extends Vue {
     })
     }
 
+  /**
+   * @vuese
+   * Used to save the newly created making a call to the API
+   */
     async saveGroup () {
       GroupService.insertGroup(this.currentUser.username,this.group.name,this.group.path,this.group.department).then(
         (response) => {
@@ -303,6 +342,11 @@ export default class GroupList extends Vue {
     this.close()
     }
     
+  /**
+   * @vuese
+   * Used to delete a given group
+   * @arg The argument is a group
+   */
     deleteGroup(group : any){
       GroupService.delGroup(group.id).then(
         (response) => {
@@ -317,6 +361,13 @@ export default class GroupList extends Vue {
       )
       window.location.reload()
     }
+
+  /**
+   * @vuese
+   * Used to assign a room to a group
+   * @arg The first argument is a room value representing the room that has to be assigned
+   * @arg The second argument is a group value representing the group
+   */
     assignRoom(e : any,group : any){
       GroupService.assignRoom(e.id,group.id).then(
         (response) => {
@@ -331,7 +382,11 @@ export default class GroupList extends Vue {
       )
       window.location.reload()
     }
-
+  /**
+   * @vuese
+   * Used to deassign a room from a given group
+   * @arg The argument is a group
+   */
     deassignRoom(group: any){
       group.room = null
       GroupService.deassignRoom(group.id).then(
@@ -347,7 +402,13 @@ export default class GroupList extends Vue {
       )
       window.location.reload()
     }
-
+  /**
+   * @vuese
+   * Used to remove a user from some group
+   * @arg The first argument is the user's username
+   * @arg The second argument is a group
+   * @arg The third argument is the index of that user in the group members list
+   */
     removeUserFromGroup(username: string,group:any,n : number){
       group.members.splice(n,1)
       GroupService.removeUserFromGroup(username,group.id).then(

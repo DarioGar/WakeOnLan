@@ -10,6 +10,10 @@ import ComputerService from '../services/ComputerService'
 })
 export default class DaysChart extends Mixins(mixins.reactiveProp, Bar, Vue) {
 
+  /**
+   * @vuese
+   * Used to render the chart, we override the renderchart method with our own options and data, retrieved from the database
+   */
   mounted () {
     var data = []
     var labels = []

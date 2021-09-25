@@ -6,7 +6,7 @@ WOL_PASSWORD = "12345"
 WOL_USER = "postgres"
 WOL_DB_NAME = "wakeonlan"
 WOL_PORT = 5432
-WOL_HOST = "192.168.0.19"
+WOL_HOST = "192.168.0.20"
 
 
 api = Api(version='1.0',

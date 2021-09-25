@@ -1,0 +1,9 @@
+{
+  "genType": "docute",
+  "include": ["**/*.vue","**/views/*.vue"],
+  "outDir": "website",
+  "markdownDir": "components",
+  "babelParserPlugins": {
+    "jsx": false
+  }
+}

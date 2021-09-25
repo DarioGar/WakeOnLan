@@ -25,7 +25,7 @@ class GroupMembers(Resource):
 	@api.response(400, 'Invalid parameters')
 	@cache.cached(timeout=1, query_string=True)
 	@jwt_required()
-	def get(self,groupID):
+	def get(self,groupID,username):
 		"""
 		Gets members of a given groups
 		"""

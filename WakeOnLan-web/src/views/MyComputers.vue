@@ -57,7 +57,7 @@
       </v-row>
     </v-card>
       <v-col cols="12">
-        <ComputerDialog class="mx-5" :edit="editComputer" :dialog="computerDialog" v-on:emit-dialog="dialog = false"/>
+        <ComputerDialog class="mx-5 mb-4" :edit="editComputer" :dialog="computerDialog" v-on:emit-dialog="dialog = false"/>
       </v-col>
   </v-col>
   </v-row>
@@ -73,8 +73,11 @@ const Auth = namespace("Auth");
 
 @Component({components:{
       ComputerDialog
-    }
+    },
+    name : 'MyComputers'
 })
+// @vuese
+// View that handles the personal computers of a user
 export default class PC extends Vue {
 
   private computerDialog = false
@@ -109,6 +112,13 @@ export default class PC extends Vue {
     this.computerDialog = true
   }
 
+  /**
+   * @vuese
+   * Used to change the permissions of a user to allowed or disallowed
+   * @arg The first argument is a string representing the user who is to be changed
+   * @arg The second argument is a boolean representing if the user is allowed(true) or not(false)
+   * @arg The third argument is a string representing the mac of the computer that we want to allow access or not
+   */
   changeAllowed(user : {username: string,allowed:boolean},mac : string){
     ComputerService.changeAllowance(user.username,user.allowed,mac).then(
       (response) => {
@@ -123,6 +133,10 @@ export default class PC extends Vue {
     )
   }
 
+  /**
+   * @vuese
+   * Used to get the personal computers of the current user
+ */
   getMyComputers(){
     this.computersOwned.length = 0
     ComputerService.getMyComputers(this.currentUser.username).then(
@@ -158,6 +172,11 @@ export default class PC extends Vue {
     )
   }
 
+  /**
+   * @vuese
+   * Used to get the programs available for the computer
+   * @arg The argument is a string representing the computer mac
+ */
   getPrograms(computer : any){
     ProgramService.getPrograms(computer.mac).then(
       (response) => {
@@ -174,6 +193,11 @@ export default class PC extends Vue {
     );
   }
 
+  /**
+   * @vuese
+   * Used to get the bootup log of a computer with username and time
+   * @arg The argument is a string representing the computer mac
+ */
   getPowerLog(computer:any){
     var log : {username: string,time:string}[] = []
     ComputerService.getLogsFor(computer.mac).then(
@@ -196,6 +220,11 @@ export default class PC extends Vue {
     )
   }
   
+  /**
+   * @vuese
+   * Used to get users allowed to power up the computer
+   * @arg The argument is a string representing the computer mac
+ */
   getUsersAllowed(computer : any){
     var allowed : {username: string,allowed:boolean}[] = []
     allowed.length = 0

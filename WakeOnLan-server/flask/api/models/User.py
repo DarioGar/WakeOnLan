@@ -163,16 +163,20 @@ class User:
     def setRoles(self,role):
         if(role == 'regular'):
             self.roles.append('regular')
+            return
         if(role == 'project_manager'):
             self.roles.append('project_manager')
             self.roles.append('regular')
+            return
         if(role == 'learning'):
             self.roles.append('learning')
+            return
         if(role == 'admin'):
             self.roles.append('admin')
             self.roles.append('project_manager')
             self.roles.append('learning')
             self.roles.append('regular')
+            return
 
     
 

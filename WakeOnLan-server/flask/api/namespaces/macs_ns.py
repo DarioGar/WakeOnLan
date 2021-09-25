@@ -194,7 +194,7 @@ class TimeRunning(Resource):
 	@jwt_required()
 	def get(self):
 		"""
-		Returns the computers that are online and the time they've been running
+		Returns how many times each user has powered a computer
 		"""
 		try:
 			response = Computer.activeUsers()

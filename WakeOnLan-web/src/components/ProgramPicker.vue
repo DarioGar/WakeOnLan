@@ -18,7 +18,11 @@ import ProgramService from "../services/ProgramService"
 
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'ProgramPicker'
+})
+// @vuese
+// This components allows the user to choose programs to run when the computers powers on
   export default class ProgramPicker extends Vue{
   private programs = [{}]
   private message = ""
@@ -28,6 +32,10 @@ const Auth = namespace("Auth");
     this.getPrograms()
   }
 
+  /**
+   * @vuese
+   * Used to get the programs allowed on the computer
+   */
   getPrograms() {
     ProgramService.getPrograms(this.computer.mac).then(
       (response) => {
@@ -44,9 +52,10 @@ const Auth = namespace("Auth");
     );
   }
 
+  // The computer that will run the programs selected
   @Prop() computer: any
 
-
+  // It emits to the parent component the programs that have to run
   @Emit()
     emitPrograms(programs : any) {
       programs = this.programs

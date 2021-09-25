@@ -22,7 +22,6 @@ class Room:
     def insert(location,capacity,use):
         cur = con.cursor()
         query = "INSERT INTO rooms (location,capacity,expected_use) VALUES (%s,%s,%s)"
-
         try:
             cur.execute(query,(location,capacity,use))
             con.commit()

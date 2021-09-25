@@ -48,7 +48,11 @@ import VueRouter from 'vue-router'
 import { namespace } from "vuex-class";
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'PowerOnComponent'
+})
+// @vuese
+//This component allows the user to pick days and time to schedule a computer to power up
   export default class PowerOnComponent extends Vue{
   time =  null
   menu = false
@@ -60,9 +64,10 @@ const Auth = namespace("Auth");
 
   @Auth.Getter
   private isLoggedIn!: boolean;
-
+  // The computer that will be configured to power up
   @Prop() computer: any
 
+  // It emits to the parent component the days and time configured
   @Emit()
     emitTime(time : any) {
       var id = this.computer.id

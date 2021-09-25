@@ -33,8 +33,6 @@ def getProgramsToLaunch(mac):
     return r.text
 
 mac = gma()
-mac = "FF:FF:FF:FF:FF:FF"
-print(mac)
 logWakeUp(os.getlogin(),mac)
 programs = getProgramsToLaunch(mac)
 for program in json.loads(programs):

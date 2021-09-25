@@ -4,11 +4,17 @@
 
 <script lang="ts">
 import LoginComponent from '../components/LoginComponent.vue'
+import {Component,Vue} from "vue-property-decorator";
 
-
-export default {
+@Component({
   components:{
-    LoginComponent
-  }
+    LoginComponent,
+  },
+  name : 'Login'
+})
+// @vuese
+// View that handles the login
+export default class Login extends Vue {
+
 }
 </script>

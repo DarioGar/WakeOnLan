@@ -58,7 +58,11 @@ import VueRouter from 'vue-router'
 import { namespace } from "vuex-class";
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'LoginComponent'
+})
+// @vuese
+
   export default class LoginComponent extends Vue{
   private user: any = { username: "", password: "" };
   private message = "";
@@ -81,6 +85,11 @@ const Auth = namespace("Auth");
     }
   }
 
+
+  /**
+   * @vuese
+   * Used to check the user's introduced data against the database, if its succesfull the users is logged in
+   */
   handleLogin() {
     if (this.user.username && this.user.password) {
       this.login(this.user).then(

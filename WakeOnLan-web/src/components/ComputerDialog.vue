@@ -152,7 +152,10 @@ import ComputerService from "../services/ComputerService"
 import ProgramService from "../services/ProgramService"
 const Auth = namespace("Auth");
 
-@Component
+@Component({
+  name: 'ComputerDialog'
+})
+// @vuese
 export default class ComputerDialog extends Vue {
 
 
@@ -162,12 +165,19 @@ export default class ComputerDialog extends Vue {
   private comboText = ""
   private defaultcomputer = {ip : "",name: "",mac : "",cpu : "",ram : 8,ssd : false,os : "Windows",gpu : "",use: "",selectedPrograms: []}
   private computer = {ip : "",name: "",mac : "",cpu : "",ram : 8,ssd : false,os : "Windows",gpu : "",use: "",selectedPrograms: []}
+
+  // The computer that we are editing if any has been given
   @Prop() edit : any
+  // The dialog that controls if this component is showing or not
   @Prop() dialog : any
 
   @Auth.State("user")
     private currentUser!: any;
 
+  /**
+   * @vuese
+   * Used to change the funcionalty from editing to new computer and vice versa
+   */
   updated(){
     if(Object.keys(this.edit).length){
       this.computer = this.edit
@@ -177,9 +187,13 @@ export default class ComputerDialog extends Vue {
       this.computer = this.defaultcomputer
       this.editing = false
     }
-      
+      return
   }
 
+  /**
+   * @vuese
+   * Used to open the component with the funcionalty of editing or new computer
+   */
   mounted(){
     if(Object.keys(this.edit).length){
       this.computer = this.edit
@@ -189,15 +203,27 @@ export default class ComputerDialog extends Vue {
       this.computer = this.defaultcomputer
       this.editing = false
     }
+    return
   }
 
+  /**
+   * @vuese
+   * Used to add a program to the computer programs list
+   * @arg The argument is a computer
+   */
   handleProgram(computer : any){
       if(this.comboText!= "")
         computer.selectedPrograms.push(this.comboText)
       this.message = computer.selectedPrograms
       this.searchString = ""
+      return
   }
 
+  /**
+   * @vuese
+   * Used to remove a program to the computer programs list
+   * @arg The argument is a computer
+   */
   deleteProgram(computer : any,event : any){
     var index = -1
     if ((index = computer.selectedPrograms.indexOf(event)) > -1)
@@ -206,12 +232,21 @@ export default class ComputerDialog extends Vue {
       this.comboText = ""
   }
 
+  /**
+   * @vuese
+   * Used to close this dialog
+   */
   close(){
     this.dialog = false
     this.edit = {}
     this.editing = false
   }
 
+  /**
+   * @vuese
+   * Used to save the newly created computer to the database making a call to the API or edit a given computer depending on the mode this component is working
+   * @arg The argument is a computer
+   */
   saveComputer(computer : any){
     if(!this.editing){
       ComputerService.registerNew(computer.mac,computer.ip,computer.ram,computer.cpu,computer.gpu,computer.os,computer.ssd,this.currentUser.username,computer.name).then(
@@ -256,6 +291,11 @@ export default class ComputerDialog extends Vue {
     window.location.reload()
   }
 
+  /**
+   * @vuese
+   * Used to remove a computer from the system
+   * @arg The argument is a computer
+   */
   deleteComputer(computer : any){
     ComputerService.delete(computer.mac).then(
       (response) => {
@@ -272,6 +312,13 @@ export default class ComputerDialog extends Vue {
     this.dialog = false
   }
 
+  /**
+   * @vuese
+   * Used to change the permissions of a user to allowed or disallowed
+   * @arg The first argument is a string representing the user who is to be changed
+   * @arg The second argument is a boolean representing if the user is allowed(true) or not(false)
+   * @arg The third argument is a string representing the mac of the computer that we want to allow access or not
+   */
   changeAllowed(username: string,allowed:boolean,mac : string){
     ComputerService.changeAllowance(username,allowed,mac).then(
       (response) => {
